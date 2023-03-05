@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -27,18 +26,18 @@ import lombok.NoArgsConstructor;
 @Data
 public class Account implements Serializable{
     @Id
-    @Column(updatable = false, nullable = false, unique = true)
+    @Column(name="account_number",updatable = false, nullable = false, unique = true)
     private long accountNumber;
 
-    @JoinColumn(name = "clientId")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "client_id")
     @JsonManagedReference
     private Client ownerId;
 
     @Column(columnDefinition = "double default 0")
     private double balance;
 
-    @OneToMany(mappedBy = "fromAcct", orphanRemoval = true)
+    @OneToMany(mappedBy = "transId",cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     private List<Transaction> transaction;
 

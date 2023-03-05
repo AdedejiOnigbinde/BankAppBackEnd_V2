@@ -3,7 +3,6 @@ package com.base.BaseDependencies.Models;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,17 +24,17 @@ import lombok.NoArgsConstructor;
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false, unique = true)
+    @Column(name="trans_id",updatable = false, nullable = false, unique = true)
     private int transId;
 
     private String transType;
     
     private double transAmount;
     
-    @JoinColumn(name = "accountNumber")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "account_number")
     @JsonManagedReference
-    private Account fromAcct;
+    private Account fromAccount;
     
     private long toAcct;
 
