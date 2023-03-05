@@ -13,13 +13,14 @@ import com.base.BaseDependencies.Utils.JwtManager;
 
 import lombok.AllArgsConstructor;
 
+
 @AllArgsConstructor
 @Service
 public class ClientService {
 
-    private final ClientRepo clientRepo;
-    private final JwtManager tokenManager;
-    private ModelMapper modelMapper = new ModelMapper();
+    private  ClientRepo clientRepo;
+    private  JwtManager tokenManager;
+    private ModelMapper modelMapper;
 
     public String createClient(RegClientDto regClient) {
         Client client = modelMapper.map(regClient, Client.class);
@@ -34,7 +35,7 @@ public class ClientService {
 
     public String verifyClient(LoginClientDto logClient) {
         Client client = modelMapper.map(logClient, Client.class);
-        Client getClientByName = clientRepo.findByName(client.getFirstName(), client.getLastName());
+        Client getClientByName = clientRepo.findByFirstNameAndLastName(client.getFirstName(), client.getLastName());
         Client getClientByPassword = clientRepo.findByPassword(client.getPassword());
 
         if (getClientByName != null && getClientByPassword != null) {

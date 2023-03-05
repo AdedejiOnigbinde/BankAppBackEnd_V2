@@ -12,18 +12,19 @@ import com.base.BaseDependencies.Repository.AccountRepo;
 import com.base.BaseDependencies.Repository.ClientRepo;
 import com.base.BaseDependencies.Utils.AccountNumberGenerator;
 import com.base.BaseDependencies.Utils.JwtManager;
-import java.util.Collections;
 
 import lombok.AllArgsConstructor;
+
+import java.util.Collections;
 
 @AllArgsConstructor
 @Service
 public class AccountService {
-    private final AccountRepo accountRepo;
-    private final ClientRepo clientRepo;
-    private final JwtManager tokenManager;
-    private final AccountNumberGenerator accountNumberGenerator;
-    private ModelMapper modelMapper = new ModelMapper();
+    private  AccountRepo accountRepo;
+    private  ClientRepo clientRepo;
+    private  JwtManager tokenManager;
+    private  AccountNumberGenerator accountNumberGenerator;
+    private ModelMapper modelMapper;
 
     public Account createAccount(AccountDto newAccountDto, String token) {
         Account newAccount = modelMapper.map(newAccountDto, Account.class);
@@ -45,7 +46,7 @@ public class AccountService {
         if (getClient == null || getAccount == null) {
             return false;
         } else {
-            accountRepo.deleteAccountById(accountId, ownerId);
+            accountRepo.deleteByAccountNumberAndOwnerId(accountId, ownerId);
             return true;
         }
 
@@ -68,7 +69,7 @@ public class AccountService {
         if (getClient == null) {
             return Collections.emptyList();
         } else {
-            return accountRepo.findByClientId(ownerId);
+            return accountRepo.findByOwnerId(ownerId);
         }
     }
 

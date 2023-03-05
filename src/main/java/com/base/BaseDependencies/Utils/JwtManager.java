@@ -11,7 +11,9 @@ import com.base.BaseDependencies.Models.Client;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @Component
 public class JwtManager {
     private final Key tokenKey;

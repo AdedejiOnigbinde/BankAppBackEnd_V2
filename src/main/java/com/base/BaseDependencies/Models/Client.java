@@ -3,6 +3,7 @@ package com.base.BaseDependencies.Models;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class Client implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false, unique = true)
+    @Column(name="clint_id",updatable = false, nullable = false, unique = true)
     private int clientId;
 
     private String firstName;
@@ -41,7 +42,7 @@ public class Client implements Serializable{
     @Column(updatable = false, nullable = false, unique = true)
     private int ssn;
 
-    @OneToMany(mappedBy = "ownerId", orphanRemoval = true)
+    @OneToMany(mappedBy ="accountNumber" ,cascade=CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     private List<Account> accounts;
 
