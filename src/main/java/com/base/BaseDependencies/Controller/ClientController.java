@@ -58,7 +58,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/removeclient")
-    public ResponseEntity<?> deleteClient(@RequestHeader("userToekn") String userToken){
+    public ResponseEntity<?> deleteClient(@RequestHeader("userToken") String userToken){
         try {
             clientService.deleteClient(userToken);
             return new ResponseEntity<>(HttpStatus.OK);
