@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.base.BaseDependencies.Dtos.LoginClientDto;
-import com.base.BaseDependencies.Dtos.RegClientDto;
 import com.base.BaseDependencies.Models.Client;
 import com.base.BaseDependencies.Service.ClientService;
 
@@ -26,26 +24,6 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerClient(@RequestBody RegClientDto regClientDto) {
-        try {
-            String hasRegistered = clientService.createClient(regClientDto);
-            return new ResponseEntity<>(hasRegistered, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        }
-
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> loginClient(@RequestBody LoginClientDto loginClientDto){
-        try {
-            String verifiedClient = clientService.verifyClient(loginClientDto);
-            return new ResponseEntity<>(verifiedClient, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        }
-    }
 
     @GetMapping("/allclients")
     public ResponseEntity<?> getAllClient(){

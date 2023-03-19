@@ -4,10 +4,10 @@ import java.security.Key;
 import java.time.LocalDate;
 import java.util.Date;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.base.BaseDependencies.Models.Client;
-
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -19,13 +19,12 @@ public class JwtManager {
     private final Key tokenKey;
 
     public JwtManager() {
-        this.tokenKey =  Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        this.tokenKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
-    public String createToken(Client client){
+    public String createToken(Authentication authentication) {
         return Jwts.builder()
-                .setId(String.valueOf(client.getClientId()))
-                // .setSubject(String.valueOf(client.getSsn()))
+                .setSubject(authentication.getName())
                 .setIssuer("BankerApi")
                 .setIssuedAt(new Date())
                 .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(7)))
@@ -33,16 +32,23 @@ public class JwtManager {
                 .compact();
     }
 
-    public Integer parseToken(String token){
+    public String parseToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(tokenKey)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+
+    }
+
+    public boolean validateToken(String token) throws Exception{
         try{
-            return Integer.parseInt(Jwts.parserBuilder()
-            .setSigningKey(tokenKey)
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .getId());
-        }catch(Exception e){
-            return null;
+            Jwts.parser().setSigningKey(tokenKey).parseClaimsJws(token);
+            return true;
+        }catch(Exception exception){
+            throw new Exception("JWT Incorrect Or Expired");
         }
+       
     }
 }

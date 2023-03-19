@@ -36,6 +36,8 @@ public class Client implements Serializable {
 
     private String firstName;
 
+    private String userName;
+
     private String lastName;
 
     private String password;

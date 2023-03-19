@@ -1,16 +1,24 @@
 package com.base.BaseDependencies.Dtos;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@RequiredArgsConstructor
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class RegClientDto {
 
     private String firstName;
 
     private String lastName;
+
+    private String userName;
 
     private String password;
 
