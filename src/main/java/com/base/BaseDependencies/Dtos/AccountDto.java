@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 @Data
 public class AccountDto {
 
+    private long accountNumber;
+
     private double balance;
 
     private String accountType;

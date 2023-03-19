@@ -8,9 +8,6 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @Data
 public class LoginClientDto {
-    private String firstName;
-
-    private String lastName;
-
+    private String userName;
     private String password;
 }
