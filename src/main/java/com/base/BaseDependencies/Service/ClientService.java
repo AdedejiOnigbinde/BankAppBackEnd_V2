@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.modelmapper.ModelMapper;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import com.base.BaseDependencies.Dtos.LoginClientDto;
 import com.base.BaseDependencies.Dtos.RegClientDto;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientAlreadyExists;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
 import com.base.BaseDependencies.Models.Client;
 import com.base.BaseDependencies.Models.Role;
 import com.base.BaseDependencies.Repository.ClientRepo;
@@ -27,14 +29,16 @@ import lombok.AllArgsConstructor;
 public class ClientService {
 
     private ClientRepo clientRepo;
+    private Environment env;
     private JwtManager tokenManager;
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
     private RoleRepo roleRepo;
 
-    public boolean createClient(RegClientDto regClient) throws Exception {
-        Optional<Client> existingClient = clientRepo.findBySsn(regClient.getSsn());
-        if (existingClient.isEmpty()) {
+    public boolean createClient(RegClientDto regClient) {
+        Optional<Client> existingSsn = clientRepo.findBySsn(regClient.getSsn());
+        Optional<Client> existingUserName = clientRepo.findByUserName(regClient.getUserName());
+        if (existingSsn.isEmpty() && existingUserName.isEmpty()) {
             Client client = new Client();
             client.setUserName(regClient.getUserName());
             client.setFirstName(regClient.getFirstName());
@@ -48,7 +52,7 @@ public class ClientService {
             clientRepo.save(client);
             return true;
         }
-        throw new Exception("Client Already Exists");
+        throw new ClientAlreadyExists(env.getProperty("CLIENT_EXISTS_EXCEPTION_MESSAGE"));
     }
 
     public String verifyClient(LoginClientDto logClient) {
@@ -56,17 +60,22 @@ public class ClientService {
                 new UsernamePasswordAuthenticationToken(logClient.getUserName(), logClient.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenManager.createToken(authentication);
-        return token;
 
+        return token;
     }
 
     public List<Client> getAllClients() {
         return clientRepo.findAll();
     }
 
-    public String deleteClient(String token) {
-        // Integer getClientId = tokenManager.parseToken(token);
-        // clientRepo.deleteById(getClientId);
-        return "Completed";
+    public boolean deleteClient(String token) {
+        String getClientUserName = tokenManager.parseToken(token);
+        Optional<Client> existingClient = clientRepo.findByUserName(getClientUserName);
+        if (existingClient.isPresent()) {
+            clientRepo.deleteByUserName(getClientUserName);
+            return true;
+        }
+        throw new ClientNotFound(env.getProperty("CLIENT_NOT_FOUND_EXCEPTION_MESSAGE"));
+
     }
 }

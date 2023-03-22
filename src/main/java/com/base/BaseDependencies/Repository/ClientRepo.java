@@ -14,5 +14,7 @@ public interface ClientRepo extends JpaRepository<Client, Integer>{
     Optional<Client> findByFirstNameAndLastNameAndPassword(String firstName,String lastName,String password);
 
     Optional<Client> findByUserName(String username);
+
+    void deleteByUserName(String username);
     
 }
