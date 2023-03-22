@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,24 +22,15 @@ public class ClientController {
 
     private final ClientService clientService;
 
-
     @GetMapping("/allclients")
-    public ResponseEntity<?> getAllClient(){
-        try {
-            List<Client> clientList = clientService.getAllClients();
-            return new ResponseEntity<>(clientList, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        }
+    public ResponseEntity<?> getAllClient() {
+        List<Client> clientList = clientService.getAllClients();
+        return new ResponseEntity<>(clientList, HttpStatus.OK);
     }
 
     @DeleteMapping("/removeclient")
-    public ResponseEntity<?> deleteClient(@RequestHeader("userToken") String userToken){
-        try {
-            clientService.deleteClient(userToken);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
-        }
+    public ResponseEntity<?> deleteClient(@RequestHeader("userToken") String userToken) {
+        clientService.deleteClient(userToken);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -1,89 +1,96 @@
-// package com.base.BaseDependencies.Service;
+package com.base.BaseDependencies.Service;
 
-// import java.util.List;
-// import java.util.Optional;
+import java.util.List;
+import java.util.Optional;
 
-// import org.modelmapper.ModelMapper;
-// import org.springframework.stereotype.Service;
+import org.modelmapper.ModelMapper;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
-// import com.base.BaseDependencies.Dtos.AccountDto;
-// import com.base.BaseDependencies.Models.Account;
-// import com.base.BaseDependencies.Models.Client;
-// import com.base.BaseDependencies.Repository.AccountRepo;
-// import com.base.BaseDependencies.Repository.ClientRepo;
-// import com.base.BaseDependencies.Utils.AccountNumberGenerator;
-// import com.base.BaseDependencies.Utils.JwtManager;
+import com.base.BaseDependencies.Dtos.AccountDto;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.AccountNotFound;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTransaction;
+import com.base.BaseDependencies.Models.Account;
+import com.base.BaseDependencies.Models.Client;
+import com.base.BaseDependencies.Repository.AccountRepo;
+import com.base.BaseDependencies.Repository.ClientRepo;
+import com.base.BaseDependencies.Utils.AccountNumberGenerator;
+import com.base.BaseDependencies.Utils.JwtManager;
 
-// import lombok.AllArgsConstructor;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
+@Service
+public class AccountService {
+    private AccountRepo accountRepo;
+    private ClientRepo clientRepo;
+    private Environment env;
+    private JwtManager tokenManager;
+    private AccountNumberGenerator accountNumberGenerator;
+    private ModelMapper modelMapper;
 
-// @AllArgsConstructor
-// @Service
-// public class AccountService {
-//     private AccountRepo accountRepo;
-//     private ClientRepo clientRepo;
-//     private JwtManager tokenManager;
-//     private AccountNumberGenerator accountNumberGenerator;
-//     private ModelMapper modelMapper;
+    public Account createAccount(AccountDto newAccountDto, String token) {
+        String ownerUserName = tokenManager.parseToken(token);
+        Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
+        if (getClient.isPresent()) {
+            Account newAccount = modelMapper.map(newAccountDto, Account.class);
+            newAccount.setAccountNumber(accountNumberGenerator.generateAccountNumber(12));
+            newAccount.setOwnerId(getClient.get());
+            return accountRepo.save(newAccount);
+        }
+        throw new ClientNotFound(env.getProperty("CLIENT_NOT_FOUND_EXCEPTION_MESSAGE"));
+    }
 
-//     public Account createAccount(AccountDto newAccountDto, String token) throws Exception {
-//         String ownerDetails = tokenManager.parseToken(token);
-//         Optional<Client> getClient = clientRepo.findById(ownerDetails);
-//         if (getClient.isPresent()) {
-//             Account newAccount = modelMapper.map(newAccountDto, Account.class);
-//             newAccount.setAccountNumber(accountNumberGenerator.generateAccountNumber(12));
-//             newAccount.setOwnerId(getClient.get());
-//             return accountRepo.save(newAccount);
-//         }
-//         throw new Exception("No Client Found");
-//     }
+    public Boolean deleteAccount(Long accountId, String token) {
+        String ownerUserName = tokenManager.parseToken(token);
+        Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
+        Optional<Account> getAccount = accountRepo.findById(accountId);
+        if (getClient.isEmpty()) {
+            throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        } else if (getAccount.isEmpty()) {
+            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        }
+        accountRepo.deleteByAccountNumberAndOwnerId(accountId, getClient.get().getClientId());
+        return true;
 
-//     public Boolean deleteAccount(Long accountId, String token) throws Exception {
-//         String ownerDetails = tokenManager.parseToken(token);
-//         Optional<Client> getClient = clientRepo.findById(ownerDetails);
-//         Optional<Account> getAccount = accountRepo.findById(accountId);
-//         if (getClient.isEmpty()) {
-//             throw new Exception("Client Not Found");
-//         } else if (getAccount.isEmpty()) {
-//             throw new Exception("Account Not Found");
-//         }
-//         accountRepo.deleteByAccountNumberAndOwnerId(accountId, ownerDetails);
-//         return true;
+    }
 
-//     }
+    public boolean updateAccountBalance(Account account, String token) {
+        String ownerUserName = tokenManager.parseToken(token);
+        Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
+        if (getClient.isEmpty()) {
+            throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        } else if (account.getOwnerId().getClientId() != getClient.get().getClientId()) {
+            throw new InvalidTransaction(env.getProperty("TRANSACTION.INVALID.TRANSACTION.EXCEPTION.MESSAGE"));
+        }
+        accountRepo.save(account);
+        return true;
 
-//     public boolean updateAccountBalance(Account account, String token) throws Exception {
-//         String ownerDetails = tokenManager.parseToken(token);
-//         Optional<Client> getClient = clientRepo.findById(ownerDetails);
-//         if (getClient.isPresent()) {
-//             accountRepo.save(account);
-//             return true;
-//         }
-//         throw new Exception("Client Not Found");
-//     }
+    }
 
-//     public Optional<List<Account>> getAccountByClientId(String token) throws Exception {
-//         String ownerDetails = tokenManager.parseToken(token);
-//         Optional<Client> getClient = clientRepo.findById(ownerDetails);
-//         if (getClient.isPresent()) {
-//             return accountRepo.findByOwnerId(ownerDetails);
-//         }
-//         throw new Exception("No Accounts Available");
-//     }
+    public Optional<List<Account>> getAccountByClientUserName(String token) {
+        String ownerUserName = tokenManager.parseToken(token);
+        Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
+        if (getClient.isPresent()) {
+            return accountRepo.findByOwnerId(getClient.get().getClientId());
+        }
+        throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND_EXCEPTION.MESSAGE"));
+    }
 
-//     public Account getAccountById(long accountNumber, String token) throws Exception {
-//         String ownerDetails = tokenManager.parseToken(token);
-//         Optional<Client> getClient = clientRepo.findById(ownerDetails);
-//         Optional<Account> getAccount = accountRepo.findById(accountNumber);
-//         if (getClient.isEmpty()) {
-//             throw new Exception("Client Not Found");
-//         } else if (getAccount.isEmpty()) {
-//             throw new Exception("Account Not Found");
-//         }
-//             return getAccount.get();
-//     }
+    public Account getAccountById(long accountNumber, String token) {
+        String ownerUserName = tokenManager.parseToken(token);
+        Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
+        Optional<Account> getAccount = accountRepo.findById(accountNumber);
+        if (getClient.isEmpty()) {
+            throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        } else if (getAccount.isEmpty()) {
+            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        }
+        return getAccount.get();
+    }
 
-//     public List<Account> getAllAccounts() {
-//         return accountRepo.findAll();
-//     }
-// }
+    public List<Account> getAllAccounts() {
+        return accountRepo.findAll();
+    }
+}
