@@ -29,7 +29,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/removeclient")
-    public ResponseEntity<?> deleteClient(@RequestHeader("userToken") String userToken) {
+    public ResponseEntity<?> deleteClient(@RequestHeader("Authorization") String userToken) {
         clientService.deleteClient(userToken);
         return new ResponseEntity<>(HttpStatus.OK);
     }

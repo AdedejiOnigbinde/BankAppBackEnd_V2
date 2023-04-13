@@ -52,7 +52,7 @@ public class ClientService {
             clientRepo.save(client);
             return true;
         }
-        throw new ClientAlreadyExists(env.getProperty("CLIENT_EXISTS_EXCEPTION_MESSAGE"));
+        throw new ClientAlreadyExists(env.getProperty("CLIENT.EXISTS.EXCEPTION.MESSAGE"));
     }
 
     public String verifyClient(LoginClientDto logClient) {

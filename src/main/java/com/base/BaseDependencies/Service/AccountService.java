@@ -45,15 +45,15 @@ public class AccountService {
     public Boolean deleteAccount(Long accountId, String token) {
         String ownerUserName = tokenManager.parseToken(token);
         Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
-        Optional<Account> getAccount = accountRepo.findById(accountId);
         if (getClient.isEmpty()) {
             throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
-        } else if (getAccount.isEmpty()) {
-            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        }
+        Optional<Account> getAccount = accountRepo.findById(accountId);
+        if (getAccount.isEmpty()) {
+            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND.EXCEPTION.MESSAGE"));
         }
         accountRepo.deleteByAccountNumberAndOwnerId(accountId, getClient.get().getClientId());
         return true;
-
     }
 
     public boolean updateAccountBalance(Account account, String token) {
@@ -69,23 +69,28 @@ public class AccountService {
 
     }
 
-    public Optional<List<Account>> getAccountByClientUserName(String token) {
+    public List<Account> getAccountByClientUserName(String token) {
         String ownerUserName = tokenManager.parseToken(token);
         Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
-        if (getClient.isPresent()) {
-            return accountRepo.findByOwnerId(getClient.get().getClientId());
+        if (getClient.isEmpty()) {
+            throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
         }
-        throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        Optional<List<Account>> accountList = accountRepo.findByOwnerId(getClient.get());
+        if (accountList.isEmpty()) {
+            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND.EXCEPTION.MESSAGE"));
+        }
+        return accountList.get();
     }
 
     public Account getAccountById(long accountNumber, String token) {
         String ownerUserName = tokenManager.parseToken(token);
         Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
-        Optional<Account> getAccount = accountRepo.findById(accountNumber);
         if (getClient.isEmpty()) {
             throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
-        } else if (getAccount.isEmpty()) {
-            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        }
+        Optional<Account> getAccount = accountRepo.findByAccountNumberAndOwnerId(accountNumber, getClient.get());
+        if (getAccount.isEmpty()) {
+            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND.EXCEPTION.MESSAGE"));
         }
         return getAccount.get();
     }
