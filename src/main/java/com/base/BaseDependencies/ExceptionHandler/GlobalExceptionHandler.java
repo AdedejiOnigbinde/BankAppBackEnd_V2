@@ -2,6 +2,7 @@ package com.base.BaseDependencies.ExceptionHandler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -9,6 +10,7 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.AccountNotF
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientAlreadyExists;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InsufficentFunds;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidToken;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTransaction;
 
 @RestControllerAdvice
@@ -36,6 +38,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidTransaction.class)
     public ResponseEntity<?> handleInvalidTransactionException(InvalidTransaction exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidToken.class)
+    public ResponseEntity<?> handleInvalidTokenException(InvalidToken exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 

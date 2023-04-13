@@ -30,7 +30,7 @@ public class Account implements Serializable{
     @Column(name="account_number",updatable = false, nullable = false, unique = true)
     private long accountNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id")
     @JsonManagedReference
     private Client ownerId;

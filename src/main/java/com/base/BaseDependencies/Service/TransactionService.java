@@ -22,7 +22,7 @@ public class TransactionService {
     private AccountService accountService;
     private Environment env;
 
-    public Boolean withdrawal(TransactionDto transDto, String token) {
+    public String withdrawal(TransactionDto transDto, String token) {
         Account updatedAccount = accountService.getAccountById(transDto.getFromAcct(), token);
         double accountBal = updatedAccount.getBalance();
         double withdrawlAmt = transDto.getTransAmount();
@@ -34,12 +34,12 @@ public class TransactionService {
             newTransaction.setTransType(transDto.getTransType());
             newTransaction.setFromAccount(updatedAccount);
             transactionRepo.save(newTransaction);
-            return true;
+            return "Withdrawal Successful";
         }
         throw new InsufficentFunds(env.getProperty("TRANSACTION.INSUFFICIENT.FUNDS.EXCEPTION.MESSAGE"));
     }
 
-    public Boolean deposit(TransactionDto transDto, String token) {
+    public String deposit(TransactionDto transDto, String token) {
         Account updatedAccount = accountService.getAccountById(transDto.getFromAcct(), token);
         double accountBal = updatedAccount.getBalance();
         double withdrawlAmt = transDto.getTransAmount();
@@ -50,18 +50,18 @@ public class TransactionService {
         newTransaction.setTransType(transDto.getTransType());
         newTransaction.setFromAccount(updatedAccount);
         transactionRepo.save(newTransaction);
-        return true;
+        return "Deposit Successful";
     }
 
-    public Boolean transfer(TransactionDto transDto, String token) {
+    public String transfer(TransactionDto transDto, String token) {
         Account fromAccount = accountService.getAccountById(transDto.getFromAcct(), token);
         Account toAccount = accountService.getAccountById(transDto.getToAcct(), token);
         double fromAccountBal = fromAccount.getBalance();
         double transAmt = transDto.getTransAmount();
         double toAccountBal = toAccount.getBalance();
-        if (fromAccountBal > transAmt) {
+        if (fromAccountBal < transAmt) {
             throw new InsufficentFunds(env.getProperty("TRANSACTION.INSUFFICIENT.FUNDS.EXCEPTION.MESSAGE"));
-        } else if (fromAccountBal > 0 && transAmt > 0) {
+        } else if (fromAccountBal < 0 && transAmt < 0) {
             throw new InvalidTransaction(env.getProperty("TRANSACTION.INVALID.TRANSACTION.EXCEPTION.MESSAGE"));
         }
         toAccount.setBalance(fromAccountBal + transAmt);
@@ -74,12 +74,12 @@ public class TransactionService {
         newTransaction.setFromAccount(fromAccount);
         newTransaction.setToAcct(transDto.getToAcct());
         transactionRepo.save(newTransaction);
-        return true;
+        return "Trasnfer Successful";
 
     }
 
-    public Optional<List<Transaction>> getTransactionByAccountNumber(long accountNumber, String token) {
+    public List<Transaction> getTransactionByAccountNumber(long accountNumber, String token) {
         Account existingAccount = accountService.getAccountById(accountNumber, token);
-        return transactionRepo.findByFromAccount(existingAccount);
+        return transactionRepo.findByFromAccount(existingAccount).get();
     }
 }
