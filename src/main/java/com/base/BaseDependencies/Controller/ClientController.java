@@ -23,13 +23,13 @@ public class ClientController {
     private final ClientService clientService;
 
     @GetMapping("/allclients")
-    public ResponseEntity<?> getAllClient() {
+    public ResponseEntity<List<Client>> getAllClient() {
         List<Client> clientList = clientService.getAllClients();
         return new ResponseEntity<>(clientList, HttpStatus.OK);
     }
 
     @DeleteMapping("/removeclient")
-    public ResponseEntity<?> deleteClient(@RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<HttpStatus> deleteClient(@RequestHeader("Authorization") String userToken) {
         clientService.deleteClient(userToken);
         return new ResponseEntity<>(HttpStatus.OK);
     }

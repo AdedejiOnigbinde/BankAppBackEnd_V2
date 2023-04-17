@@ -1,7 +1,6 @@
 package com.base.BaseDependencies.Controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createAccount(@RequestBody AccountDto accountDto,
+    public ResponseEntity<Account> createAccount(@RequestBody AccountDto accountDto,
             @RequestHeader("Authorization") String userToken) {
         Account newAccount = accountService.createAccount(accountDto, userToken);
         return new ResponseEntity<>(newAccount, HttpStatus.CREATED);
@@ -36,26 +35,26 @@ public class AccountController {
     }
 
     @GetMapping("/allaccounts")
-    public ResponseEntity<?> getAllAccounts() {
+    public ResponseEntity<List<Account>> getAllAccounts() {
         List<Account> accountList = accountService.getAllAccounts();
         return new ResponseEntity<>(accountList, HttpStatus.OK);
     }
 
     @GetMapping("/alluseraccounts")
-    public ResponseEntity<?> getAccountsByUserName(@RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<List<Account>> getAccountsByUserName(@RequestHeader("Authorization") String userToken) {
         List<Account> accountList = accountService.getAccountByClientUserName(userToken);
         return new ResponseEntity<>(accountList, HttpStatus.OK);
     }
 
     @GetMapping("/useraccount/{accountId}")
-    public ResponseEntity<?> getAccountById(@PathVariable Long accountId, @RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<Account> getAccountById(@PathVariable Long accountId, @RequestHeader("Authorization") String userToken) {
        Account account =  accountService.getAccountById(accountId, userToken);
         return new ResponseEntity<>(account, HttpStatus.OK);
 
     }
 
     @DeleteMapping("/deleteaccount/{accountId}")
-    public ResponseEntity<?> deleteAccount(@PathVariable Long accountId, @RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<HttpStatus> deleteAccount(@PathVariable Long accountId, @RequestHeader("Authorization") String userToken) {
         accountService.deleteAccount(accountId, userToken);
         return new ResponseEntity<>(HttpStatus.OK);
 

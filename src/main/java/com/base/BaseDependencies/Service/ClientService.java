@@ -58,10 +58,9 @@ public class ClientService {
     public String verifyClient(LoginClientDto logClient) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(logClient.getUserName(), logClient.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = tokenManager.createToken(authentication);
-
-        return token;
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = tokenManager.createToken(authentication);
+            return token;
     }
 
     public List<Client> getAllClients() {

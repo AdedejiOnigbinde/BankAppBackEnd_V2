@@ -2,6 +2,7 @@ package com.base.BaseDependencies.ExceptionHandler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,38 +18,43 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTran
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountNotFound.class)
-    public ResponseEntity<?> handleAccountNotFoundException(AccountNotFound exception) {
+    public ResponseEntity<String> handleAccountNotFoundException(AccountNotFound exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(ClientAlreadyExists.class)
-    public ResponseEntity<?> handleClientAlreadyExistsException(ClientAlreadyExists exception) {
+    public ResponseEntity<String> handleClientAlreadyExistsException(ClientAlreadyExists exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
     @ExceptionHandler(ClientNotFound.class)
-    public ResponseEntity<?> handleClientNotFoundException(ClientNotFound exception) {
+    public ResponseEntity<String> handleClientNotFoundException(ClientNotFound exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(InsufficentFunds.class)
-    public ResponseEntity<?> handleInsufficentFundsException(InsufficentFunds exception) {
+    public ResponseEntity<String> handleInsufficentFundsException(InsufficentFunds exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidTransaction.class)
-    public ResponseEntity<?> handleInvalidTransactionException(InvalidTransaction exception) {
+    public ResponseEntity<String> handleInvalidTransactionException(InvalidTransaction exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException exception) {
+    public ResponseEntity<String> handleUsernameNotFoundException(UsernameNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidToken.class)
-    public ResponseEntity<?> handleInvalidTokenException(InvalidToken exception) {
+    public ResponseEntity<String> handleInvalidTokenException(InvalidToken exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
     }
 
 }
