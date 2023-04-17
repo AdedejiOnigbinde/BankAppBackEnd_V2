@@ -21,7 +21,7 @@ public class AuthController {
     private ClientService clientService;
 
     @PostMapping("register")
-    public ResponseEntity<?> registerClient(@RequestBody RegClientDto regClientDto) {
+    public ResponseEntity<Boolean> registerClient(@RequestBody RegClientDto regClientDto) {
 
         boolean hasRegistered = clientService.createClient(regClientDto);
         return new ResponseEntity<>(hasRegistered, HttpStatus.CREATED);
@@ -29,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<?> loginClient(@RequestBody LoginClientDto loginClientDto) {
+    public ResponseEntity<String> loginClient(@RequestBody LoginClientDto loginClientDto) {
         String verifiedClient = clientService.verifyClient(loginClientDto);
         return new ResponseEntity<>(verifiedClient, HttpStatus.OK);
 
