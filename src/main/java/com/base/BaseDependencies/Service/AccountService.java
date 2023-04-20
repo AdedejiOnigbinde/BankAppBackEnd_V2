@@ -52,7 +52,7 @@ public class AccountService {
         if (getAccount.isEmpty()) {
             throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND.EXCEPTION.MESSAGE"));
         }
-        accountRepo.deleteByAccountNumberAndOwnerId(accountId, getClient.get().getClientId());
+        accountRepo.deleteByAccountNumberAndOwnerId(accountId, getClient.get());
         return true;
     }
 

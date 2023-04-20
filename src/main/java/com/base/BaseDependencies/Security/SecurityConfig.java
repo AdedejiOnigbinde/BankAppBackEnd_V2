@@ -19,22 +19,26 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private  AuthenticationProvider authenticationProvider;
-    private  JwtAuthenticationFilter jwtAuthenticationFilter;
+    private AuthenticationProvider authenticationProvider;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf()
-                .disable()
+
+        http.csrf().disable()
                 .authorizeHttpRequests()
-                .antMatchers(HttpMethod.POST,"/auth/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                .antMatchers(HttpMethod.POST, Endpoints.AUTH).permitAll()
+                .antMatchers(HttpMethod.GET, Endpoints.ADMINACCOUNT).hasAuthority("ADMIN")
+                .antMatchers(HttpMethod.GET, Endpoints.ADMINCLIENT).hasAuthority("ADMIN")
+                .antMatchers(HttpMethod.POST, Endpoints.CREATEACCOUNTALL).hasAuthority("USER")
+                .antMatchers(HttpMethod.POST, Endpoints.CREATETRANSACTIONALL).hasAuthority("USER")
+                .antMatchers(HttpMethod.DELETE, Endpoints.DELETEACCOUNTALL).hasAuthority("USER")
+                .antMatchers(HttpMethod.DELETE, Endpoints.DELETECLIENTALL).hasAuthority("USER")
+                .antMatchers(HttpMethod.GET, Endpoints.RETRIEVEACCOUNTALL).hasAnyAuthority("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, Endpoints.RETRIEVETRANSACTIONALL).hasAnyAuthority("ADMIN", "USER")
+                .anyRequest().authenticated()
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -46,6 +50,20 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    public class Endpoints {
+        public static final String AUTH = "/auth/**";
+        public static final String ADMINACCOUNT = "/account/allaccounts";
+        public static final String ADMINCLIENT = "/client/allclients";
+        public static final String CREATEACCOUNTALL = "/account/create";
+        public static final String[] CREATETRANSACTIONALL = { "/transaction/withdrawal", "/transaction/deposit",
+                "/transaction/transfer" };
+        public static final String DELETEACCOUNTALL = "/account/deleteaccount/**";
+        public static final String DELETECLIENTALL = "/client/removeclient";
+        public static final String[] RETRIEVEACCOUNTALL = { "/account/alluseraccounts",
+                "/account/useraccount/{accountId}" };
+        public static final String RETRIEVETRANSACTIONALL = "/transaction/accounttransactions/**";
     }
 
 }
