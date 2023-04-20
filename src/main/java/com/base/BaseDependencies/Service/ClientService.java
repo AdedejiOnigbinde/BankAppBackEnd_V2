@@ -55,6 +55,26 @@ public class ClientService {
         throw new ClientAlreadyExists(env.getProperty("CLIENT.EXISTS.EXCEPTION.MESSAGE"));
     }
 
+    public boolean createAdmin(RegClientDto regClient) {
+        Optional<Client> existingSsn = clientRepo.findBySsn(regClient.getSsn());
+        Optional<Client> existingUserName = clientRepo.findByUserName(regClient.getUserName());
+        if (existingSsn.isEmpty() && existingUserName.isEmpty()) {
+            Client client = new Client();
+            client.setUserName(regClient.getUserName());
+            client.setFirstName(regClient.getFirstName());
+            client.setLastName(regClient.getLastName());
+            client.setAddress(regClient.getAddress());
+            client.setSsn(regClient.getSsn());
+            client.setPassword(passwordEncoder.encode(regClient.getPassword()));
+            client.setPinNumber(regClient.getPinNumber());
+            Role roles = roleRepo.findByRoleName("ADMIN").get();
+            client.setRoles(Collections.singletonList(roles));
+            clientRepo.save(client);
+            return true;
+        }
+        throw new ClientAlreadyExists(env.getProperty("CLIENT.EXISTS.EXCEPTION.MESSAGE"));
+    }
+
     public String verifyClient(LoginClientDto logClient) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(logClient.getUserName(), logClient.getPassword()));

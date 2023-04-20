@@ -28,6 +28,14 @@ public class AuthController {
 
     }
 
+    @PostMapping("registerAdmin")
+    public ResponseEntity<Boolean> registerAdmin(@RequestBody RegClientDto regClientDto) {
+
+        boolean hasRegistered = clientService.createAdmin(regClientDto);
+        return new ResponseEntity<>(hasRegistered, HttpStatus.CREATED);
+
+    }
+
     @PostMapping("login")
     public ResponseEntity<String> loginClient(@RequestBody LoginClientDto loginClientDto) {
         String verifiedClient = clientService.verifyClient(loginClientDto);
