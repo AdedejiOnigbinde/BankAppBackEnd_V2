@@ -35,7 +35,7 @@ public class ClientService {
     private AuthenticationManager authenticationManager;
     private RoleRepo roleRepo;
 
-    public boolean createClient(RegClientDto regClient) {
+    public String createClient(RegClientDto regClient) {
         Optional<Client> existingSsn = clientRepo.findBySsn(regClient.getSsn());
         Optional<Client> existingUserName = clientRepo.findByUserName(regClient.getUserName());
         if (existingSsn.isEmpty() && existingUserName.isEmpty()) {
@@ -50,12 +50,12 @@ public class ClientService {
             Role roles = roleRepo.findByRoleName("USER").get();
             client.setRoles(Collections.singletonList(roles));
             clientRepo.save(client);
-            return true;
+            return "User Register Successfully Please Login";
         }
         throw new ClientAlreadyExists(env.getProperty("CLIENT.EXISTS.EXCEPTION.MESSAGE"));
     }
 
-    public boolean createAdmin(RegClientDto regClient) {
+    public String createAdmin(RegClientDto regClient) {
         Optional<Client> existingSsn = clientRepo.findBySsn(regClient.getSsn());
         Optional<Client> existingUserName = clientRepo.findByUserName(regClient.getUserName());
         if (existingSsn.isEmpty() && existingUserName.isEmpty()) {
@@ -70,17 +70,20 @@ public class ClientService {
             Role roles = roleRepo.findByRoleName("ADMIN").get();
             client.setRoles(Collections.singletonList(roles));
             clientRepo.save(client);
-            return true;
+            return "User Register Successfully Please Login";
         }
         throw new ClientAlreadyExists(env.getProperty("CLIENT.EXISTS.EXCEPTION.MESSAGE"));
     }
 
-    public String verifyClient(LoginClientDto logClient) {
+    public String[] verifyClient(LoginClientDto logClient) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(logClient.getUserName(), logClient.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = tokenManager.createToken(authentication);
-            return token;
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Optional<Client> clientInfo = clientRepo.findByUserName(authentication.getName());
+        String userRole = clientInfo.get().getRoles().get(0).getRoleName();
+        String token = tokenManager.createToken(authentication);
+        String[] userDetailsArray = { token, userRole };
+        return userDetailsArray;
     }
 
     public List<Client> getAllClients() {

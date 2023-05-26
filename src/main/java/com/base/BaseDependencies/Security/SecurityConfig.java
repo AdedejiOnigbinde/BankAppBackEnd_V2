@@ -25,7 +25,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf().disable()
+        http.csrf().disable().cors().and()
                 .authorizeHttpRequests()
                 .antMatchers(HttpMethod.POST, Endpoints.AUTH).permitAll()
                 .antMatchers(HttpMethod.GET, Endpoints.ADMINACCOUNT).hasAuthority("ADMIN")
