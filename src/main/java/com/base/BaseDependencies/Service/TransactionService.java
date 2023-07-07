@@ -1,7 +1,10 @@
 package com.base.BaseDependencies.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -81,5 +84,17 @@ public class TransactionService {
     public List<Transaction> getTransactionByAccountNumber(long accountNumber, String token) {
         Account existingAccount = accountService.getAccountById(accountNumber, token);
         return transactionRepo.findByFromAccount(existingAccount).get();
+    }
+
+    public List<Transaction> getAllRecentTransactionsByUser(String token) {
+        List recentTransactions = new ArrayList<>();
+        List<Account> accountList = accountService.getAccountByClientUserName(token);
+
+        recentTransactions = accountList.stream()
+                .flatMap(account -> getTransactionByAccountNumber(account.getAccountNumber(), token).stream())
+                .sorted(Comparator.comparing(Transaction::getTransactionDate).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
+        return recentTransactions;
     }
 }
