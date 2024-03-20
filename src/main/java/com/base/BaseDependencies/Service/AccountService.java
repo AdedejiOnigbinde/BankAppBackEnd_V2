@@ -1,5 +1,6 @@
 package com.base.BaseDependencies.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,14 +57,14 @@ public class AccountService {
         return true;
     }
 
-    public boolean updateAccountBalance(Account account, String token) {
-        String ownerUserName = tokenManager.parseToken(token);
-        Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
-        if (getClient.isEmpty()) {
-            throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
-        } else if (account.getOwnerId().getClientId() != getClient.get().getClientId()) {
-            throw new InvalidTransaction(env.getProperty("TRANSACTION.INVALID.TRANSACTION.EXCEPTION.MESSAGE"));
-        }
+    public boolean updateAccountBalance(Account account) {
+        
+        // Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
+        // if (getClient.isEmpty()) {
+        //     throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        // } else if (account.getOwnerId().getClientId() != getClient.get().getClientId()) {
+        //     throw new InvalidTransaction(env.getProperty("TRANSACTION.INVALID.TRANSACTION.EXCEPTION.MESSAGE"));
+        // }
         accountRepo.save(account);
         return true;
 
@@ -93,6 +94,23 @@ public class AccountService {
             throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND.EXCEPTION.MESSAGE"));
         }
         return getAccount.get();
+    }
+
+    public List<Account> getTwoAccountsById(long firstAccountNumber, long secondAccountNumber, String token) {
+        String ownerUserName = tokenManager.parseToken(token);
+        ArrayList<Account> accountList = new ArrayList<>();
+        Optional<Client> getClient = clientRepo.findByUserName(ownerUserName);
+        if (getClient.isEmpty()) {
+            throw new ClientNotFound(env.getProperty("CLIENT.NOT.FOUND_EXCEPTION.MESSAGE"));
+        }
+        Optional<Account> getFirstAccount = accountRepo.findByAccountNumberAndOwnerId(firstAccountNumber, getClient.get());
+        Optional<Account> getSecondAccount = accountRepo.findById(secondAccountNumber);
+        if (getFirstAccount.isEmpty() || getSecondAccount.isEmpty()) {
+            throw new AccountNotFound(env.getProperty("ACCOUNT.NOT.FOUND.EXCEPTION.MESSAGE"));
+        }
+        accountList.add(getFirstAccount.get());
+        accountList.add(getSecondAccount.get());
+        return accountList;
     }
 
     public List<Account> getAllAccounts() {
