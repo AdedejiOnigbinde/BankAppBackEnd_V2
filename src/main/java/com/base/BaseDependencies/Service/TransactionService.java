@@ -31,7 +31,7 @@ public class TransactionService {
         double withdrawlAmt = transDto.getTransAmount();
         if (accountBal > withdrawlAmt) {
             updatedAccount.setBalance(accountBal - withdrawlAmt);
-            accountService.updateAccountBalance(updatedAccount, token);
+            accountService.updateAccountBalance(updatedAccount);
             Transaction newTransaction = new Transaction();
             newTransaction.setTransAmount(transDto.getTransAmount());
             newTransaction.setTransType(transDto.getTransType());
@@ -47,7 +47,7 @@ public class TransactionService {
         double accountBal = updatedAccount.getBalance();
         double withdrawlAmt = transDto.getTransAmount();
         updatedAccount.setBalance(accountBal + withdrawlAmt);
-        accountService.updateAccountBalance(updatedAccount, token);
+        accountService.updateAccountBalance(updatedAccount);
         Transaction newTransaction = new Transaction();
         newTransaction.setTransAmount(transDto.getTransAmount());
         newTransaction.setTransType(transDto.getTransType());
@@ -57,8 +57,9 @@ public class TransactionService {
     }
 
     public String transfer(TransactionDto transDto, String token) {
-        Account fromAccount = accountService.getAccountById(transDto.getFromAcct(), token);
-        Account toAccount = accountService.getAccountById(transDto.getToAcct(), token);
+        List<Account> accountList = accountService.getTwoAccountsById(transDto.getFromAcct(),transDto.getToAcct(),token);
+        Account fromAccount = accountList.get(0);
+        Account toAccount = accountList.get(1);
         double fromAccountBal = fromAccount.getBalance();
         double transAmt = transDto.getTransAmount();
         double toAccountBal = toAccount.getBalance();
@@ -67,10 +68,10 @@ public class TransactionService {
         } else if (fromAccountBal < 0 && transAmt < 0) {
             throw new InvalidTransaction(env.getProperty("TRANSACTION.INVALID.TRANSACTION.EXCEPTION.MESSAGE"));
         }
-        toAccount.setBalance(fromAccountBal + transAmt);
-        fromAccount.setBalance(toAccountBal - transAmt);
-        accountService.updateAccountBalance(toAccount, token);
-        accountService.updateAccountBalance(fromAccount, token);
+        toAccount.setBalance(toAccountBal + transAmt);
+        fromAccount.setBalance(fromAccountBal - transAmt);
+        accountService.updateAccountBalance(toAccount);
+        accountService.updateAccountBalance(fromAccount);
         Transaction newTransaction = new Transaction();
         newTransaction.setTransAmount(transDto.getTransAmount());
         newTransaction.setTransType(transDto.getTransType());
@@ -87,7 +88,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getAllRecentTransactionsByUser(String token) {
-        List recentTransactions = new ArrayList<>();
+        List<Transaction> recentTransactions = new ArrayList<>();
         List<Account> accountList = accountService.getAccountByClientUserName(token);
 
         recentTransactions = accountList.stream()
