@@ -25,9 +25,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Account implements Serializable{
+public class Account implements Serializable {
     @Id
-    @Column(name="account_number",updatable = false, nullable = false, unique = true)
+    @Column(name = "account_number", updatable = false, nullable = false, unique = true)
     private long accountNumber;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -38,7 +38,13 @@ public class Account implements Serializable{
     @Column(columnDefinition = "double default 0")
     private double balance;
 
-    @OneToMany(mappedBy = "fromAccount",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(columnDefinition = "double default 1000000")
+    private double limit;
+
+    @Column(columnDefinition = "double default 0")
+    private double calcLimit;
+
+    @OneToMany(mappedBy = "fromAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     private List<Transaction> transaction;
 
