@@ -57,4 +57,15 @@ public class Client implements Serializable {
     @JoinTable(name = "client_roles", joinColumns = @JoinColumn(name = "client_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "loanOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Loan> loans = new ArrayList<>();
+
+    @OneToMany(mappedBy = "beneficiaryOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Beneficiary> beneficiaries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "billOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bill> bills = new ArrayList<>();
+
+    @OneToMany(mappedBy = "payee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PaidBills> paidBills = new ArrayList<>();
 }

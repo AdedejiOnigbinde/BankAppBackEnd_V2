@@ -25,29 +25,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Transactions")
-public class Transaction implements Serializable {
+@Table(name = "Bills")
+public class PaidBills implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "trans_id", updatable = false, nullable = false, unique = true)
-    private int transId;
+    @Column(name = "paid_bill_id", updatable = false, nullable = false, unique = true)
+    private int paidBillId;
 
-    private String transType;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "client_id")
+    @JsonManagedReference
+    private Client payee;
 
-    private double transAmount;
+    @CreationTimestamp
+    private LocalDateTime paymentDate;
 
     private String status;
 
-    private double balance;
+    private double amount;
 
-    @CreationTimestamp
-    private LocalDateTime transactionDate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_number")
-    @JsonManagedReference
-    private Account fromAccount;
-
-    private long toAcct;
+    private String biller;
 
 }
