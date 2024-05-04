@@ -36,6 +36,8 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.DELETE, Endpoints.DELETECLIENTALL).hasAuthority("USER")
                 .antMatchers(HttpMethod.GET, Endpoints.RETRIEVEACCOUNTALL).hasAnyAuthority("ADMIN", "USER")
                 .antMatchers(HttpMethod.GET, Endpoints.RETRIEVETRANSACTIONALL).hasAnyAuthority("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, Endpoints.CLIENTBENEFICIARIES).hasAnyAuthority( "USER")
+                .antMatchers(HttpMethod.DELETE, Endpoints.DELETEBENEFICIARIES).hasAnyAuthority( "USER")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -53,7 +55,7 @@ public class SecurityConfig {
     }
 
     public class Endpoints {
-        public static final String AUTH = "/auth/**";
+        public static final String[] AUTH = {"/auth/**","/client/getallbeneficiaries"};
         public static final String ADMINACCOUNT = "/account/allaccounts";
         public static final String ADMINCLIENT = "/client/allclients";
         public static final String CREATEACCOUNTALL = "/account/create";
@@ -64,6 +66,8 @@ public class SecurityConfig {
         public static final String[] RETRIEVEACCOUNTALL = { "/account/alluseraccounts",
                 "/account/useraccount/{accountId}" };
         public static final String RETRIEVETRANSACTIONALL = "/transaction/accounttransactions/**";
+        public static final String CLIENTBENEFICIARIES = "/client/allbeneficiaries";
+        public static final String DELETEBENEFICIARIES = "/client//removebeneficiary/**";
     }
 
 }

@@ -1,6 +1,7 @@
 package com.base.BaseDependencies.Controller;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.base.BaseDependencies.Dtos.LoginClientDto;
-import com.base.BaseDependencies.Dtos.RegClientDto;
+import com.base.BaseDependencies.Dtos.RequestDtos.LoginClientDto;
+import com.base.BaseDependencies.Dtos.RequestDtos.RegClientDto;
 import com.base.BaseDependencies.Service.ClientService;
 
 import lombok.AllArgsConstructor;
@@ -44,8 +45,8 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<String[]> loginClient(@RequestBody LoginClientDto loginClientDto) {
-        String[] verifiedClient = clientService.verifyClient(loginClientDto);
+    public ResponseEntity<Map<String,String>> loginClient(@RequestBody LoginClientDto loginClientDto) {
+        Map<String,String> verifiedClient = clientService.verifyClient(loginClientDto);
         return new ResponseEntity<>(verifiedClient, HttpStatus.OK);
 
     }
