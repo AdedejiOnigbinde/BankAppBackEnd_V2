@@ -11,7 +11,15 @@ public class AccountDto {
 
     private long accountNumber;
 
+    private int ownerId;
+
     private double balance;
 
     private String accountType;
+
+    private double calcLimit;
+
+    private double dailyTransferLimit;
+
+    private String accountStatus;
 }

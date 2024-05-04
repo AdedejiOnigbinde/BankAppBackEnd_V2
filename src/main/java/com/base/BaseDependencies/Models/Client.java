@@ -18,6 +18,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +35,8 @@ public class Client implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_id", updatable = false, nullable = false, unique = true)
     private int clientId;
+
+    private String photoUrl;
 
     private String firstName;
 
@@ -58,14 +62,23 @@ public class Client implements Serializable {
     private List<Role> roles = new ArrayList<>();
 
     @OneToMany(mappedBy = "loanOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<Loan> loans = new ArrayList<>();
 
     @OneToMany(mappedBy = "beneficiaryOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore 
+    @JsonBackReference
     private List<Beneficiary> beneficiaries = new ArrayList<>();
 
     @OneToMany(mappedBy = "billOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<Bill> bills = new ArrayList<>();
 
     @OneToMany(mappedBy = "payee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<PaidBills> paidBills = new ArrayList<>();
+
+    @OneToMany(mappedBy = "loanRequestOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<LoanRequest> loanRequests = new ArrayList<>();
 }

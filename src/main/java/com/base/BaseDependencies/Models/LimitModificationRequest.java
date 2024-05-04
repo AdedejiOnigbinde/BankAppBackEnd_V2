@@ -1,7 +1,7 @@
 package com.base.BaseDependencies.Models;
 
 import java.io.Serializable;
-
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,10 +13,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,21 +25,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Beneficiaries")
-@Builder
-public class Beneficiary implements Serializable{
-
+@Table(name = "LimitModificationRequests")
+public class LimitModificationRequest implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "beneficiary_id", updatable = false, nullable = false, unique = true)
-    private int beneficiaryId;
+    @Column(name = "limit_modification_id", updatable = false, nullable = false, unique = true)
+    private int LimitModificationId;
 
-    private long bankAccountNumber;
+    private double oldLimit;
 
-    private String bank;
-    
+    private double newLimit;
+
+    private String status;
+
+    @CreationTimestamp
+    private LocalDateTime requestDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "account_number")
     @JsonManagedReference
-    private Client beneficiaryOwner;
+    private Account requestAccount;
+
+
 }

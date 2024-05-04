@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Account implements Serializable {
     @Id
     @Column(name = "account_number", updatable = false, nullable = false, unique = true)
@@ -39,7 +41,7 @@ public class Account implements Serializable {
     private double balance;
 
     @Column(columnDefinition = "double default 1000000")
-    private double limit;
+    private double dailyTransferLimit;
 
     @Column(columnDefinition = "double default 0")
     private double calcLimit;
@@ -48,5 +50,15 @@ public class Account implements Serializable {
     @JsonBackReference
     private List<Transaction> transaction;
 
+    @OneToMany(mappedBy = "requestAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<LimitModificationRequest> limitModificationRequests;
+
+    @OneToMany(mappedBy = "depositAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<DepositRequest> depositRequests;
+
     private String accountType;
+
+    private String accountStatus;
 }

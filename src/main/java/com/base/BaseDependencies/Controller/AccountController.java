@@ -1,7 +1,9 @@
 package com.base.BaseDependencies.Controller;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.base.BaseDependencies.Dtos.AccountDto;
@@ -29,36 +32,39 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/create")
-    public ResponseEntity<Account> createAccount(@RequestBody AccountDto accountDto,
+    public ResponseEntity<AccountDto> createAccount(@RequestBody Map<String, String> accountType,
             @RequestHeader("Authorization") String userToken) {
-        Account newAccount = accountService.createAccount(accountDto, userToken);
+        AccountDto newAccount = accountService.createAccount(accountType, userToken);
         return new ResponseEntity<>(newAccount, HttpStatus.CREATED);
 
     }
 
     @GetMapping("/allaccounts")
-    public ResponseEntity<List<Account>> getAllAccounts() {
-        List<Account> accountList = accountService.getAllAccounts();
+    public ResponseEntity<Page<Account>> getAllAccounts(@RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam(defaultValue = "0") int page) {
+        Page<Account> accountList = accountService.getAllAccounts(page);
         return new ResponseEntity<>(accountList, HttpStatus.OK);
     }
 
     @GetMapping("/alluseraccounts")
-    public ResponseEntity<List<Account>> getAccountsByUserName(@RequestHeader("Authorization") String userToken) {
-        List<Account> accountList = accountService.getAccountByClientUserName(userToken);
+    public ResponseEntity<List<AccountDto>> getAccountsByUserName(@RequestHeader("Authorization") String userToken) {
+        List<AccountDto> accountList = accountService.getAccountByClientUserName(userToken);
         return new ResponseEntity<>(accountList, HttpStatus.OK);
     }
 
     @GetMapping("/useraccount/{accountId}")
-    public ResponseEntity<Account> getAccountById(@PathVariable Long accountId, @RequestHeader("Authorization") String userToken) {
-       Account account =  accountService.getAccountById(accountId, userToken);
+    public ResponseEntity<AccountDto> getAccountById(@PathVariable Long accountId,
+            @RequestHeader("Authorization") String userToken) {
+        AccountDto account = accountService.getAccountById(accountId, userToken);
         return new ResponseEntity<>(account, HttpStatus.OK);
 
     }
 
     @DeleteMapping("/deleteaccount/{accountId}")
-    public ResponseEntity<HttpStatus> deleteAccount(@PathVariable Long accountId, @RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<HttpStatus> deleteAccount(@PathVariable Long accountId,
+            @RequestHeader("Authorization") String userToken) {
         accountService.deleteAccount(accountId, userToken);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
 }

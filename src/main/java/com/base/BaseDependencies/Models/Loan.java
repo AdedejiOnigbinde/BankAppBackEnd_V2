@@ -33,7 +33,7 @@ public class Loan implements Serializable {
     private int loanId;
 
     @CreationTimestamp
-    private LocalDateTime startDate;
+    private LocalDateTime approvalDate;
 
     private double amount;
 
@@ -45,7 +45,9 @@ public class Loan implements Serializable {
 
     private String status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    private double interestRate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     @JsonManagedReference
     private Client loanOwner;

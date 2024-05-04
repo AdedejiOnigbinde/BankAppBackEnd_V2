@@ -3,12 +3,11 @@ package com.base.BaseDependencies.Utils;
 import java.security.Key;
 import java.util.Date;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidToken;
 
 import io.jsonwebtoken.Claims;
@@ -21,8 +20,7 @@ import lombok.AllArgsConstructor;
 @Component
 public class JwtManager {
     private final Key tokenKey;
-    @Autowired
-    private Environment env;
+    
 
     public JwtManager() {
         this.tokenKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
@@ -74,6 +72,6 @@ public class JwtManager {
             String bearerToken = token.substring(7, token.length());
             return bearerToken;
         }
-        throw new InvalidToken(env.getProperty("INVALID.TOKEN.EXCEPTION.MESSAGE"));
+        throw new InvalidToken(ErrorMessageConstants.INVALID_TOKEN_EXCEPTION_MESSAGE);
     }
 }

@@ -1,10 +1,11 @@
 package com.base.BaseDependencies.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,8 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.base.BaseDependencies.Dtos.LoginClientDto;
-import com.base.BaseDependencies.Dtos.RegClientDto;
+import com.base.BaseDependencies.Constants.ErrorMessageConstants;
+import com.base.BaseDependencies.Constants.GeneralMessageConstants;
+import com.base.BaseDependencies.Dtos.RequestDtos.LoginClientDto;
+import com.base.BaseDependencies.Dtos.RequestDtos.RegClientDto;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientAlreadyExists;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
 import com.base.BaseDependencies.Models.Client;
@@ -29,7 +32,6 @@ import lombok.AllArgsConstructor;
 public class ClientService {
 
     private ClientRepo clientRepo;
-    private Environment env;
     private JwtManager tokenManager;
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
@@ -50,9 +52,9 @@ public class ClientService {
             Role roles = roleRepo.findByRoleName("USER").get();
             client.setRoles(Collections.singletonList(roles));
             clientRepo.save(client);
-            return "User Register Successfully Please Login";
+            return GeneralMessageConstants.SUCCESSFUL_REGISTRATION_MESSAGE;
         }
-        throw new ClientAlreadyExists(env.getProperty("CLIENT.EXISTS.EXCEPTION.MESSAGE"));
+        throw new ClientAlreadyExists(ErrorMessageConstants.CLIENT_EXIST_EXCEPTION_MESSAGE);
     }
 
     public String createAdmin(RegClientDto regClient) {
@@ -70,20 +72,22 @@ public class ClientService {
             Role roles = roleRepo.findByRoleName("ADMIN").get();
             client.setRoles(Collections.singletonList(roles));
             clientRepo.save(client);
-            return "User Register Successfully Please Login";
+            return GeneralMessageConstants.SUCCESSFUL_REGISTRATION_MESSAGE;
         }
-        throw new ClientAlreadyExists(env.getProperty("CLIENT.EXISTS.EXCEPTION.MESSAGE"));
+        throw new ClientAlreadyExists(ErrorMessageConstants.CLIENT_EXIST_EXCEPTION_MESSAGE);
     }
 
-    public String[] verifyClient(LoginClientDto logClient) {
+    public Map<String,String> verifyClient(LoginClientDto logClient) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(logClient.getUserName(), logClient.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Optional<Client> clientInfo = clientRepo.findByUserName(authentication.getName());
         String userRole = clientInfo.get().getRoles().get(0).getRoleName();
         String token = tokenManager.createToken(authentication);
-        String[] userDetailsArray = { token, userRole };
-        return userDetailsArray;
+        Map<String,String> response = new HashMap();
+        response.put("accessToken", token);
+        response.put("role", userRole);
+        return response;
     }
 
     public List<Client> getAllClients() {
@@ -97,7 +101,7 @@ public class ClientService {
             clientRepo.deleteByUserName(getClientUserName);
             return true;
         }
-        throw new ClientNotFound(env.getProperty("CLIENT_NOT_FOUND_EXCEPTION_MESSAGE"));
+        throw new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE);
 
     }
 }

@@ -1,4 +1,4 @@
-package com.base.BaseDependencies.Dtos;
+package com.base.BaseDependencies.Dtos.RequestDtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
