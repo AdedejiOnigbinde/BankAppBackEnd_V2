@@ -13,8 +13,6 @@ public class ClientDto {
     
     private String firstName;
 
-    private String userName;
-
     private String lastName;
 
     private String address;

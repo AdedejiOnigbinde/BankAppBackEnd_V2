@@ -14,5 +14,5 @@ public class BillDto {
 
     private String biller;
 
-    private String nickename;
+    private String nickname;
 }

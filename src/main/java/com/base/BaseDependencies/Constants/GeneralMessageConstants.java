@@ -9,6 +9,8 @@ public class GeneralMessageConstants {
     public static final String SUCCESSFUL_BILL_DELETION_MESSAGE="Deleted Bill Successfully";
     public static final String SUCCESSFUL_BILL_PAID_MESSAGE="Bill Paid Successfully";
     public static final String SUCCESSFUL_BILL_SAVE_MESSAGE="Bill Saved Successfully";
+    public static final String SUCCESSFUL_PROFILE_UPDATION_MESSAGE="Profile Updated";
+    public static final String SUCCESSFUL_PASSWORD_RESET_MESSAGE="Password Reset Successfully";
     public static final String SUCCESS_STATUS="success";
     public static final String IN_REVIEW_STATUS="in review";
     public static final String REJECTED_STATUS="rejected";

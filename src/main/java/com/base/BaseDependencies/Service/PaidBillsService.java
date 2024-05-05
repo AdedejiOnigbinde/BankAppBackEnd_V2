@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.Constants.GeneralMessageConstants;
-import com.base.BaseDependencies.Dtos.BillDto;
 import com.base.BaseDependencies.Dtos.PaidBillsDto;
 import com.base.BaseDependencies.Dtos.RequestDtos.PayBillRequestDto;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
