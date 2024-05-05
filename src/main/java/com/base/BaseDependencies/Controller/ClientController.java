@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,13 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.base.BaseDependencies.Dtos.BeneficiaryDto;
 import com.base.BaseDependencies.Dtos.BillDto;
-import com.base.BaseDependencies.Models.Client;
+import com.base.BaseDependencies.Dtos.ClientDto;
+import com.base.BaseDependencies.Dtos.RequestDtos.ChangePasswordRequestDto;
 import com.base.BaseDependencies.Service.BeneficiaryService;
 import com.base.BaseDependencies.Service.BillService;
 import com.base.BaseDependencies.Service.ClientService;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @AllArgsConstructor
 @RestController
@@ -33,8 +36,8 @@ public class ClientController {
     private final BillService billService;
 
     @GetMapping("/allclients")
-    public ResponseEntity<List<Client>> getAllClient() {
-        List<Client> clientList = clientService.getAllClients();
+    public ResponseEntity<List<ClientDto>> getAllClient() {
+        List<ClientDto> clientList = clientService.getAllClients();
         return new ResponseEntity<>(clientList, HttpStatus.OK);
     }
 
@@ -68,6 +71,27 @@ public class ClientController {
             @RequestHeader("Authorization") String userToken) {
         billService.deleteBill(billId, userToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<ClientDto> updateProfile(@RequestBody ClientDto request,
+            @RequestHeader("Authorization") String token) {
+        ClientDto response = clientService.updateProfile(request, token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ClientDto> getProfile(@RequestHeader("Authorization") String token) {
+        ClientDto response = clientService.getProfile(token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequestDto request,
+            @RequestHeader("Authorization") String token) {
+        String response = clientService.changePassword(request, token);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

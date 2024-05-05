@@ -73,7 +73,7 @@ public class TransactionController {
         return new ResponseEntity<>(paidBillsList, HttpStatus.OK);
     }
 
-    @PostMapping("paybill")
+    @PostMapping("/paybill")
     public ResponseEntity<String> postMethodName(@RequestBody PayBillRequestDto request,
             @RequestHeader("Authorization") String token) {
         String response = paidBillsService.payBill(request, token);

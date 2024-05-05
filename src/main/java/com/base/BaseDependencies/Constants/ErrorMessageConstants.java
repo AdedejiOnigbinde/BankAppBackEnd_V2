@@ -4,6 +4,7 @@ package com.base.BaseDependencies.Constants;
 public class ErrorMessageConstants {
 
     public static final String CLIENT_NOT_FOUND_EXCEPTION_MESSAGE="Client Does Not Exist";
+    public static final String LOGIN_EXCEPTION_MESSAGE="Wrong Username Or Password";
     public static final String CLIENT_EXIST_EXCEPTION_MESSAGE="Client Already Exists";
     public static final String ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE="Account Not Found";
     public static final String TRANSACTION_INVALID_TRANSACTION_EXCEPTION_MESSAGE="Sorry This Transaction Cannot Be Made";
@@ -18,4 +19,5 @@ public class ErrorMessageConstants {
     public static final String INVALID_PIN_EXCEPTION_MESSAGE="Invalid Pin Number";
     public static final String BILL_NOT_FOUND_EXCEPTION_MESSAGE="Bill Not Found";
     public static final String BILL_PAYMENT_EXCEPTION_MESSAGE="You Can Only Pay A Bill From Your Checking Balance";
+    public static final String INVALID_PASSWORD_CHANGE_EXCEPTION_MESSAGE="Incorrect Password";
 }

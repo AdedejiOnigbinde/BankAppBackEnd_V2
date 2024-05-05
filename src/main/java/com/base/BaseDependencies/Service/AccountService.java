@@ -3,6 +3,7 @@ package com.base.BaseDependencies.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -65,17 +66,12 @@ public class AccountService {
 
     public List<AccountDto> getAccountByClientUserName(String token) {
         String ownerUserName = tokenManager.parseToken(token);
-        List<AccountDto> listOfAccounts = new ArrayList<>();
         Client getClient = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
         List<Account> accountList = accountRepo.findByOwnerId(getClient)
                 .orElseThrow(() -> new AccountNotFound(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE));
-        accountList.forEach(account -> {
-            AccountDto mappedAccount = mapAccountToDto(account);
-            listOfAccounts.add(mappedAccount);
-        });
+        return accountList.stream().map(this::mapAccountToDto).collect(Collectors.toList());
 
-        return listOfAccounts;
     }
 
     public AccountDto getAccountById(long accountNumber, String token) {
