@@ -1,14 +1,11 @@
 package com.base.BaseDependencies.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -79,7 +76,7 @@ public class LoansService {
         String getClientUserName = tokenManager.parseToken(token);
         Client existingClient = clientRepo.findByUserName(getClientUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
-        if (existingClient.getRoles().contains("ADMIN")) {
+        if (existingClient.getRoles().get(0).getRoleName().equals("ADMIN")) {
             int loanRequestId = Integer.parseInt(request.get("loanId"));
             String changeStatus = request.get("changeStatus");
             LoanRequest loanRequest = loansRequestRepo.findById(loanRequestId)
@@ -139,7 +136,7 @@ public class LoansService {
         double paymentAmount = Double.parseDouble(request.get("paymentAmount"));
         if (!foundLoan.getLoanOwner().equals(existingClient)) {
             throw new LoanNotFound(ErrorMessageConstants.LOAN_NOT_FOUND_EXCEPTION_MESSAGE);
-        } else if (foundLoan.getPaidAmount() < (foundLoan.getPaidAmount() + paymentAmount)) {
+        } else if (foundLoan.getAmount() < (foundLoan.getPaidAmount() + paymentAmount)) {
             throw new InvalidTransaction("You Cannot Over Pay A Loan");
         } else if (foundLoan.getStatus().equals(GeneralMessageConstants.IN_REVIEW_STATUS)
                 || foundLoan.getStatus().equals(GeneralMessageConstants.REJECTED_STATUS)) {
@@ -162,7 +159,8 @@ public class LoansService {
             Optional<List<LoanRequest>> requestList = loansRequestRepo
                     .findByStatus(GeneralMessageConstants.IN_REVIEW_STATUS);
             if (requestList.isPresent()) {
-                return requestList.stream().map(loan -> modelMapper.map(loan, LoanRequestDto.class))
+                return requestList.get().stream()
+                        .map(loan -> modelMapper.map(loan, LoanRequestDto.class))
                         .collect(Collectors.toList());
             }
 
