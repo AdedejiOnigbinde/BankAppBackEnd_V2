@@ -20,4 +20,7 @@ public class ErrorMessageConstants {
     public static final String BILL_NOT_FOUND_EXCEPTION_MESSAGE="Bill Not Found";
     public static final String BILL_PAYMENT_EXCEPTION_MESSAGE="You Can Only Pay A Bill From Your Checking Balance";
     public static final String INVALID_PASSWORD_CHANGE_EXCEPTION_MESSAGE="Incorrect Password";
+    public static final String INVALID_LOGIN_EXCEPTION_MESSAGE="Incorrect Password Or Username";
+    public static final String LOAN_NOT_FOUND_EXCEPTION_MESSAGE="Loan Does Not Exist";
+    public static final String LOAN_APPROVAL_ACCOUNT_MESSAGE="You Can Only Pay A Loan Into A Checking Balance";
 }

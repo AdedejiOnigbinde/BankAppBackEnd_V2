@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @Data
 public class LoanDto {
+    private int loanId;
+
     private LocalDateTime startDate;
 
     private double amount;
