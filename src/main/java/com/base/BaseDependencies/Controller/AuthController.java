@@ -35,7 +35,7 @@ public class AuthController {
 
     }
 
-    @PostMapping("registerAdmin")
+    @PostMapping("register-admin")
     public ResponseEntity<ArrayList<String>> registerAdmin(@RequestBody RegClientDto regClientDto) {
         ArrayList<String> successMessage = new ArrayList<String>();
         String hasRegistered = clientService.createAdmin(regClientDto);

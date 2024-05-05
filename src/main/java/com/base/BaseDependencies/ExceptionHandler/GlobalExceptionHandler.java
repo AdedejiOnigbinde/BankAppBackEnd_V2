@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.AccountNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.BeneficiaryExists;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.BeneficiaryNotFound;
@@ -16,6 +17,7 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFo
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InsufficentFunds;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidToken;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTransaction;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.LoanNotFound;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -57,21 +59,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException exception) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorMessageConstants.INVALID_LOGIN_EXCEPTION_MESSAGE);
     }
 
     @ExceptionHandler(BeneficiaryExists.class)
-    public ResponseEntity<String> handleInvalidTokenException(BeneficiaryExists exception) {
+    public ResponseEntity<String> handleBeneficiaryExistsException(BeneficiaryExists exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
     @ExceptionHandler(BeneficiaryNotFound.class)
-    public ResponseEntity<String> handleInvalidTokenException(BeneficiaryNotFound exception) {
+    public ResponseEntity<String> handleBeneficiaryNotFoundException(BeneficiaryNotFound exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
     @ExceptionHandler(BillNotFound.class)
-    public ResponseEntity<String> handleInvalidTokenException(BillNotFound exception) {
+    public ResponseEntity<String> handleBillNotFoundException(BillNotFound exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(LoanNotFound.class)
+    public ResponseEntity<String> handleLoanNotFoundException(LoanNotFound exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 

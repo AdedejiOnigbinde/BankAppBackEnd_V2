@@ -39,20 +39,20 @@ public class AccountController {
 
     }
 
-    @GetMapping("/allaccounts")
+    @GetMapping("/all")
     public ResponseEntity<Page<Account>> getAllAccounts(@RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(defaultValue = "0") int page) {
         Page<Account> accountList = accountService.getAllAccounts(page);
         return new ResponseEntity<>(accountList, HttpStatus.OK);
     }
 
-    @GetMapping("/alluseraccounts")
+    @GetMapping("/client")
     public ResponseEntity<List<AccountDto>> getAccountsByUserName(@RequestHeader("Authorization") String userToken) {
         List<AccountDto> accountList = accountService.getAccountByClientUserName(userToken);
         return new ResponseEntity<>(accountList, HttpStatus.OK);
     }
 
-    @GetMapping("/useraccount/{accountId}")
+    @GetMapping("/{accountId}")
     public ResponseEntity<AccountDto> getAccountById(@PathVariable Long accountId,
             @RequestHeader("Authorization") String userToken) {
         AccountDto account = accountService.getAccountById(accountId, userToken);
@@ -60,7 +60,7 @@ public class AccountController {
 
     }
 
-    @DeleteMapping("/deleteaccount/{accountId}")
+    @DeleteMapping("/{accountId}")
     public ResponseEntity<HttpStatus> deleteAccount(@PathVariable Long accountId,
             @RequestHeader("Authorization") String userToken) {
         accountService.deleteAccount(accountId, userToken);

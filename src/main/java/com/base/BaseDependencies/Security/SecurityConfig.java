@@ -28,18 +28,14 @@ public class SecurityConfig {
                 http.csrf().disable().cors().and()
                                 .authorizeHttpRequests()
                                 .antMatchers(HttpMethod.POST, Endpoints.AUTH).permitAll()
-                                .antMatchers(HttpMethod.GET, Endpoints.ADMINACCOUNT).hasAuthority("ADMIN")
-                                .antMatchers(HttpMethod.GET, Endpoints.ADMINCLIENT).hasAuthority("ADMIN")
-                                .antMatchers(HttpMethod.POST, Endpoints.CREATEACCOUNTALL).hasAuthority("USER")
-                                .antMatchers(HttpMethod.POST, Endpoints.CREATETRANSACTIONALL).hasAuthority("USER")
-                                .antMatchers(HttpMethod.DELETE, Endpoints.DELETEACCOUNTALL).hasAuthority("USER")
-                                .antMatchers(HttpMethod.DELETE, Endpoints.DELETECLIENTALL).hasAuthority("USER")
-                                .antMatchers(HttpMethod.GET, Endpoints.RETRIEVEACCOUNTALL)
+                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTADMIN).hasAuthority("ADMIN")
+                                .antMatchers(HttpMethod.PATCH, Endpoints.PATCHREQUESTADMIN).hasAuthority("ADMIN")
+                                .antMatchers(HttpMethod.POST, Endpoints.POSTREQUESTCLIENT).hasAuthority("USER")
+                                .antMatchers(HttpMethod.DELETE, Endpoints.DELETEREQUESTCLIENT).hasAuthority("USER")
+                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTBOTH)
                                 .hasAnyAuthority("ADMIN", "USER")
-                                .antMatchers(HttpMethod.GET, Endpoints.RETRIEVETRANSACTIONALL)
-                                .hasAnyAuthority("ADMIN", "USER")
-                                .antMatchers(HttpMethod.GET, Endpoints.CLIENTBENEFICIARIES).hasAnyAuthority("USER")
-                                .antMatchers(HttpMethod.PATCH, Endpoints.CLIENTPROFILE).hasAnyAuthority("USER")
+                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTCLIENT).hasAnyAuthority("USER")
+                                .antMatchers(HttpMethod.PATCH, Endpoints.PATCHREQUESTCLIENT).hasAnyAuthority("USER")
                                 .anyRequest().authenticated()
                                 .and()
                                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -56,24 +52,21 @@ public class SecurityConfig {
                 return authenticationConfiguration.getAuthenticationManager();
         }
 
-        public class Endpoints {
-                public static final String AUTH = "/auth/**";
-                public static final String ADMINACCOUNT = "/account/allaccounts";
-                public static final String ADMINCLIENT = "/client/allclients";
-                public static final String CREATEACCOUNTALL = "/account/create";
-                public static final String[] CREATETRANSACTIONALL = {
-                                "/transaction/outer-bank-transfer", "/transaction/inner-bank-transfer",
-                                "/transaction/paybill" };
-                public static final String DELETEACCOUNTALL = "/account/deleteaccount/**";
-                public static final String DELETECLIENTALL[] = { "/client/removeclient", "/client/removebeneficiary/**",
-                                "/client/removebill/**" };
-                public static final String[] RETRIEVEACCOUNTALL = { "/account/alluseraccounts",
-                                "/account/useraccount/{accountId}" };
-                public static final String RETRIEVETRANSACTIONALL[] = { "/transaction/accounttransactions/**",
-                                "/transaction/accountrecenttransactions", "/transaction/allpaidbills" };
-                public static final String CLIENTBENEFICIARIES[] = { "/client/allbeneficiaries", "client/allbills",
-                                "/client/profile" };
-                public static final String CLIENTPROFILE[] = { "/client/password", "/client/profile" };
+        protected class Endpoints {
+                protected static final String AUTH = "/auth/**";
+                protected static final String GETREQUESTADMIN[] = { "/account/all", "/client/all", "/client/loan/admin" };
+                protected static final String PATCHREQUESTADMIN[] = { "/client/loan/status" };
+                protected static final String[] POSTREQUESTCLIENT = {
+                                "/transaction/outer-bank", "/transaction/inner-bank",
+                                "/transaction/bill", "/account/create", "/client/loan", "/transaction/loan" };
+                protected static final String DELETEREQUESTCLIENT[] = { "/client/remove", "/client/beneficiary/**",
+                                "/client/bill/**", "/account/{accountId}" };
+                protected static final String GETREQUESTCLIENT[] = { "/client/beneficiary", "client/bill",
+                                "/client/profile", "/client/loan", "/client/loan/{loanId}" };
+                protected static final String PATCHREQUESTCLIENT[] = { "/client/password", "/client/profile" };
+                protected static final String[] GETREQUESTBOTH = { "/account/client",
+                                "/account/{accountId}", "/transaction/accounttransactions/**",
+                                "/transaction/recent", "/transaction/bills" };
 
         }
 

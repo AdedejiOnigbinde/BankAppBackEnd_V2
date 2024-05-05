@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoanRequestDto {
+    private int loanRequestId;
+
     private double amount;
-    
+
     private double installment;
 
     private String duration;
