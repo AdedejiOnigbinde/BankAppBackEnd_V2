@@ -24,30 +24,25 @@ import lombok.AllArgsConstructor;
 public class AuthController {
 
     private ClientService clientService;
-    
 
     @PostMapping("register")
-    public ResponseEntity<ArrayList<String>> registerClient(@RequestBody RegClientDto regClientDto) {
-        ArrayList<String> successMessage = new ArrayList<String>();
-        String hasRegistered = clientService.createClient(regClientDto);
-        successMessage.add(hasRegistered);
-        return new ResponseEntity<>(successMessage, HttpStatus.CREATED);
+    public ResponseEntity<String> registerClient(@RequestBody RegClientDto request) {
+        String response = clientService.createClient(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 
     @PostMapping("register-admin")
-    public ResponseEntity<ArrayList<String>> registerAdmin(@RequestBody RegClientDto regClientDto) {
-        ArrayList<String> successMessage = new ArrayList<String>();
-        String hasRegistered = clientService.createAdmin(regClientDto);
-        successMessage.add(hasRegistered);
-        return new ResponseEntity<>(successMessage, HttpStatus.CREATED);
+    public ResponseEntity<String> registerAdmin(@RequestBody RegClientDto request) {
+        String response = clientService.createAdmin(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String,String>> loginClient(@RequestBody LoginClientDto loginClientDto) {
-        Map<String,String> verifiedClient = clientService.verifyClient(loginClientDto);
-        return new ResponseEntity<>(verifiedClient, HttpStatus.OK);
+    public ResponseEntity<Map<String, String>> loginClient(@RequestBody LoginClientDto request) {
+        Map<String, String> response = clientService.verifyClient(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 }
