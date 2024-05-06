@@ -35,58 +35,59 @@ public class TransactionController {
     private LoansService loansService;
 
     @PostMapping("/outer-bank")
-    public ResponseEntity<String> outerTransfer(@RequestBody TransferRequestDto transactionDto,
-            @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> outerTransfer(@RequestBody TransferRequestDto request,
+            @RequestHeader("Authorization") String userToken) {
 
-        String transferTransaction = transactionService.outerBankTransfer(transactionDto, token);
+        String transferTransaction = transactionService.outerBankTransfer(request, userToken);
         return new ResponseEntity<>(transferTransaction, HttpStatus.OK);
 
     }
 
     @PostMapping("/inner-bank")
-    public ResponseEntity<String> innerTransfer(@RequestBody TransferRequestDto transactionDto,
-            @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> innerTransfer(@RequestBody TransferRequestDto request,
+            @RequestHeader("Authorization") String userToken) {
 
-        String transferTransaction = transactionService.innerBankTransfer(transactionDto, token);
-        return new ResponseEntity<>(transferTransaction, HttpStatus.OK);
+        String response = transactionService.innerBankTransfer(request, userToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
     @GetMapping("/{accountId}")
     public ResponseEntity<List<TransactionDto>> trasnfer(@PathVariable long accountId,
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String userToken) {
 
-        List<TransactionDto> transactionList = transactionService.getTransactionByAccountNumber(accountId, token);
-        return new ResponseEntity<>(transactionList, HttpStatus.OK);
+        List<TransactionDto> response = transactionService.getTransactionByAccountNumber(accountId, userToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<List<TransactionDto>> getRecentTransactions(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<TransactionDto>> getRecentTransactions(
+            @RequestHeader("Authorization") String userToken) {
 
-        List<TransactionDto> recentTransactionList = transactionService.getAllRecentTransactionsByAccount(token);
-        return new ResponseEntity<>(recentTransactionList, HttpStatus.OK);
+        List<TransactionDto> response = transactionService.getAllRecentTransactionsByAccount(userToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
     @GetMapping("/bill")
-    public ResponseEntity<List<PaidBillsDto>> getMethodName(@RequestHeader("Authorization") String token) {
-        List<PaidBillsDto> paidBillsList = billService.getClientPaidBills(token);
-        return new ResponseEntity<>(paidBillsList, HttpStatus.OK);
+    public ResponseEntity<List<PaidBillsDto>> getMethodName(@RequestHeader("Authorization") String userToken) {
+        List<PaidBillsDto> response = billService.getClientPaidBills(userToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/bill")
     public ResponseEntity<String> postMethodName(@RequestBody PayBillRequestDto request,
-            @RequestHeader("Authorization") String token) {
-        String response = billService.payBill(request, token);
+            @RequestHeader("Authorization") String userToken) {
+        String response = billService.payBill(request, userToken);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/loan")
     public ResponseEntity<String> payLoan(@RequestBody Map<String, String> request,
-            @RequestHeader("Authorization") String token) {
-        String response = loansService.payLoan(request, token);
+            @RequestHeader("Authorization") String userToken) {
+        String response = loansService.payLoan(request, userToken);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

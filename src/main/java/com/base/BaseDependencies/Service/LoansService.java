@@ -171,6 +171,19 @@ public class LoansService {
         return Collections.emptyList();
     }
 
+    public double getTotalLoanSum(String token) {
+        String getClientUserName = tokenManager.parseToken(token);
+        Client existingClient = clientRepo.findByUserName(getClientUserName)
+                .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
+        Optional<Double> totalLoanSum = loansRepo.getSumOfLoanByLoanOwner(existingClient);
+
+        if (totalLoanSum.isPresent()) {
+            return totalLoanSum.get();
+        }
+
+        return 0;
+    }
+
     private Account determineCheckingAccount(List<Account> senderAccountList) {
         for (Account account : senderAccountList) {
             if (GeneralMessageConstants.CHECKINGS_ACCOUNT.equalsIgnoreCase(account.getAccountType())) {

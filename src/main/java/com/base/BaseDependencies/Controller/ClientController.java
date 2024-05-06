@@ -81,57 +81,63 @@ public class ClientController {
 
     @PatchMapping("/profile")
     public ResponseEntity<ClientDto> updateProfile(@RequestBody ClientDto request,
-            @RequestHeader("Authorization") String token) {
-        ClientDto response = clientService.updateProfile(request, token);
+            @RequestHeader("Authorization") String userToken) {
+        ClientDto response = clientService.updateProfile(request, userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<ClientDto> getProfile(@RequestHeader("Authorization") String token) {
-        ClientDto response = clientService.getProfile(token);
+    public ResponseEntity<ClientDto> getProfile(@RequestHeader("Authorization") String userToken) {
+        ClientDto response = clientService.getProfile(userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PatchMapping("/profile/password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequestDto request,
-            @RequestHeader("Authorization") String token) {
-        String response = clientService.changePassword(request, token);
+            @RequestHeader("Authorization") String userToken) {
+        String response = clientService.changePassword(request, userToken);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/loan")
     public ResponseEntity<LoanDto> applyForLoan(@RequestBody LoanRequestDto request,
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String userToken) {
 
-        LoanDto response = loansService.createLoanRequest(request, token);
+        LoanDto response = loansService.createLoanRequest(request, userToken);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("/loan/status")
     public ResponseEntity<String> changeLoanStatus(@RequestBody Map<String, String> request,
-            @RequestHeader("Authorization") String token) {
-        String response = loansService.changeLoanStatus(request, token);
+            @RequestHeader("Authorization") String userToken) {
+        String response = loansService.changeLoanStatus(request, userToken);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("loan")
-    public ResponseEntity<List<LoanDto>> getAllClientLoans(@RequestHeader("Authorization") String token) {
-        List<LoanDto> response = loansService.getAllClientLoans(token);
+    public ResponseEntity<List<LoanDto>> getAllClientLoans(@RequestHeader("Authorization") String userToken) {
+        List<LoanDto> response = loansService.getAllClientLoans(userToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("loan/sum")
+    public ResponseEntity<Double> getClientsLoanSum(@RequestHeader("Authorization") String userToken) {
+        Double response = loansService.getTotalLoanSum(userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("loan/{loanId}")
-    public ResponseEntity<LoanDto> getClientLoan(@RequestHeader("Authorization") String token,
+    public ResponseEntity<LoanDto> getClientLoan(@RequestHeader("Authorization") String userToken,
             @PathVariable int loanId) {
-        LoanDto response = loansService.getClientLoan(loanId, token);
+        LoanDto response = loansService.getClientLoan(loanId, userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("loan/admin")
-    public ResponseEntity<List<LoanRequestDto>> getAllClientRequest(@RequestHeader("Authorization") String token) {
-        List<LoanRequestDto> response = loansService.getAllClientLoanRequest(token);
+    public ResponseEntity<List<LoanRequestDto>> getAllClientRequest(@RequestHeader("Authorization") String userToken) {
+        List<LoanRequestDto> response = loansService.getAllClientLoanRequest(userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

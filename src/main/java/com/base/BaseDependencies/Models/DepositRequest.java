@@ -40,6 +40,8 @@ public class DepositRequest implements Serializable {
 
     private String description;
 
+    private String status;
+
     @CreationTimestamp
     private LocalDateTime requestDate;
 

@@ -32,31 +32,31 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/create")
-    public ResponseEntity<AccountDto> createAccount(@RequestBody Map<String, String> accountType,
+    public ResponseEntity<AccountDto> createAccount(@RequestBody Map<String, String> request,
             @RequestHeader("Authorization") String userToken) {
-        AccountDto newAccount = accountService.createAccount(accountType, userToken);
-        return new ResponseEntity<>(newAccount, HttpStatus.CREATED);
+        AccountDto response = accountService.createAccount(request, userToken);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<Account>> getAllAccounts(@RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<Page<Account>> getAllAccounts(@RequestHeader("Authorization") String userToken,
             @RequestParam(defaultValue = "0") int page) {
-        Page<Account> accountList = accountService.getAllAccounts(page);
-        return new ResponseEntity<>(accountList, HttpStatus.OK);
+        Page<Account> response = accountService.getAllAccounts(page);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/client")
     public ResponseEntity<List<AccountDto>> getAccountsByUserName(@RequestHeader("Authorization") String userToken) {
-        List<AccountDto> accountList = accountService.getAccountByClientUserName(userToken);
-        return new ResponseEntity<>(accountList, HttpStatus.OK);
+        List<AccountDto> response = accountService.getAccountByClientUserName(userToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{accountId}")
     public ResponseEntity<AccountDto> getAccountById(@PathVariable Long accountId,
             @RequestHeader("Authorization") String userToken) {
-        AccountDto account = accountService.getAccountById(accountId, userToken);
-        return new ResponseEntity<>(account, HttpStatus.OK);
+        AccountDto response = accountService.getAccountById(accountId, userToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
