@@ -51,7 +51,7 @@ public class BeneficiaryService {
         Client client = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
         Optional<List<Beneficiary>> beneficiariesList = beneficiaryRepo.findByBeneficiaryOwner(client);
-        if (!beneficiaries.isEmpty()) {
+        if (beneficiariesList.isPresent()) {
             beneficiariesList.get().forEach(beneficiary -> {
                 BeneficiaryDto mappedBeneficiaryDto = modelMapper.map(beneficiary, BeneficiaryDto.class);
                 beneficiaries.add(mappedBeneficiaryDto);

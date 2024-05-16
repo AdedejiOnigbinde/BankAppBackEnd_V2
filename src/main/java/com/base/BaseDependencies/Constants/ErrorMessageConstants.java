@@ -7,6 +7,7 @@ public class ErrorMessageConstants {
     public static final String LOGIN_EXCEPTION_MESSAGE="Wrong Username Or Password";
     public static final String CLIENT_EXIST_EXCEPTION_MESSAGE="Client Already Exists";
     public static final String ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE="Account Not Found";
+    public static final String ACCOUNT_BAD_CREATION_EXCEPTION_MESSAGE="Invlaid Account Type";
     public static final String TRANSACTION_INVALID_TRANSACTION_EXCEPTION_MESSAGE="Sorry This Transaction Cannot Be Made";
     public static final String TRANSACTION_INSUFFICIENT_FUNDS_EXCEPTION_MESSAGE="Your Account Does Not Have Sufficient Funds";
     public static final String INVALID_TOKEN_EXCEPTION_MESSAGE="Your Token Is Not Valid";

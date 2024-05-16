@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.base.BaseDependencies.Dtos.AccountDto;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.AccountCreation;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.AccountNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientAlreadyExists;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
@@ -40,6 +41,8 @@ public class AccountService {
         clientAccounts.forEach(account -> {
             if (account.getAccountType().equalsIgnoreCase(accountType.get("accountType"))) {
                 throw new ClientAlreadyExists(ErrorMessageConstants.ACCOUNT_CREATION_EXCEPTION_MESSAGE);
+            }else if(!accountType.get("accountType").equalsIgnoreCase("savings") || !accountType.get("accountType").equalsIgnoreCase("checkings") ){
+                throw new AccountCreation(ErrorMessageConstants.ACCOUNT_BAD_CREATION_EXCEPTION_MESSAGE);
             }
         });
         Account newAccount = Account.builder()
