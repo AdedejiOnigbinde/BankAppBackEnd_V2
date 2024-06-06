@@ -22,5 +22,6 @@ public class GeneralMessageConstants {
     public static final String TRANSFER = "transfer";
     public static final String HANDLE_MONEY = "handlemoney";
     public static final String CHECKINGS_ACCOUNT = "checkings";
+    public static final String SAVINGS_ACCOUNT = "savings";
 
 }

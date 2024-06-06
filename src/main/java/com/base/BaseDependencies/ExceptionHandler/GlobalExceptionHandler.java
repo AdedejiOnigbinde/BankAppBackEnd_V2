@@ -15,6 +15,7 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.Beneficiary
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.BillNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientAlreadyExists;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.DepositRequestNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InsufficentFunds;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidToken;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTransaction;
@@ -24,7 +25,8 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.LoanNotFoun
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({ AccountNotFound.class, ClientNotFound.class, InsufficentFunds.class,
-            InvalidTransaction.class, BeneficiaryNotFound.class, BillNotFound.class, LoanNotFound.class })
+            InvalidTransaction.class, BeneficiaryNotFound.class, BillNotFound.class, LoanNotFound.class,
+            DepositRequestNotFound.class })
     public ResponseEntity<String> handleNotFoundException(Exception exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }

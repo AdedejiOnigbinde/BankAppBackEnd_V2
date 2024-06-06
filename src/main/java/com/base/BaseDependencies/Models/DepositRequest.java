@@ -18,6 +18,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "DepositRequests")
 public class DepositRequest implements Serializable {
     @Id
@@ -41,6 +43,10 @@ public class DepositRequest implements Serializable {
     private String description;
 
     private String status;
+
+    private double splitCheckingAmount;
+
+    private double splitSavingsAmount;
 
     @CreationTimestamp
     private LocalDateTime requestDate;
