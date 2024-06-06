@@ -4,6 +4,7 @@ package com.base.BaseDependencies.Constants;
 public class ErrorMessageConstants {
 
     public static final String CLIENT_NOT_FOUND_EXCEPTION_MESSAGE="Client Does Not Exist";
+    public static final String DEPOSIT_NOT_FOUND_EXCEPTION_MESSAGE="Deposit Request Does Not Exist";
     public static final String LOGIN_EXCEPTION_MESSAGE="Wrong Username Or Password";
     public static final String CLIENT_EXIST_EXCEPTION_MESSAGE="Client Already Exists";
     public static final String ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE="Account Not Found";
@@ -23,5 +24,7 @@ public class ErrorMessageConstants {
     public static final String INVALID_PASSWORD_CHANGE_EXCEPTION_MESSAGE="Incorrect Password";
     public static final String INVALID_LOGIN_EXCEPTION_MESSAGE="Incorrect Password Or Username";
     public static final String LOAN_NOT_FOUND_EXCEPTION_MESSAGE="Loan Does Not Exist";
-    public static final String LOAN_APPROVAL_ACCOUNT_MESSAGE="You Can Only Pay A Loan Into A Checking Balance";
+    public static final String LOAN_APPROVAL_ACCOUNT_MESSAGE="You Can Only Pay A Loan Into A Checking Account";
+    public static final String DEPOSIT_SPLIT_EXCEPTION_MESSAGE="You Can Only Split A deposit If You Have Two Accounts";
+    public static final String DEPOSIT_SPLIT_TOTAL_EXCEPTION_MESSAGE="The Split Amount Must Equal The Total Check Amount";
 }

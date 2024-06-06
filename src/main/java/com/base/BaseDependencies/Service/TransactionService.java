@@ -37,35 +37,6 @@ public class TransactionService {
     private JwtManager tokenManager;
     private BeneficiaryService beneficiaryService;
 
-    public String deposit(DepositRequest depositRequest, String token) {
-        String ownerUserName = tokenManager.parseToken(token);
-        Client getClient = clientRepo.findByUserName(ownerUserName)
-                .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
-        if (getClient.getRoles().contains("ADMIN")) {
-            Account updatedAccount = accountRepo.findById(
-                    depositRequest.getDepositAccount().getAccountNumber())
-                    .orElseThrow(() -> new AccountNotFound(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE));
-
-            double accountBal = updatedAccount.getBalance();
-            double depositAmt = depositRequest.getCheckAmount();
-            updatedAccount.setBalance(accountBal + depositAmt);
-            Account savedAccount = accountRepo.save(updatedAccount);
-            Transaction newTransaction = Transaction.builder()
-                    .transAmount(depositAmt)
-                    .transType(GeneralMessageConstants.DEPOSIT)
-                    .fromAccount(updatedAccount)
-                    .status(GeneralMessageConstants.SUCCESS_STATUS)
-                    .balance(savedAccount.getBalance())
-                    .toAcct(1L)
-                    .build();
-            transactionRepo.save(newTransaction);
-            return GeneralMessageConstants.SUCCESSFUL_DEPOSIT_MESSAGE;
-        } else {
-            throw new InvalidTransaction(ErrorMessageConstants.UAUTHORIZED_REQUEST_EXCEPTION_MESSAGE);
-        }
-
-    }
-
     public String outerBankTransfer(TransferRequestDto transDto, String token) {
         String ownerUserName = tokenManager.parseToken(token);
         Client getClient = clientRepo.findByUserName(ownerUserName)

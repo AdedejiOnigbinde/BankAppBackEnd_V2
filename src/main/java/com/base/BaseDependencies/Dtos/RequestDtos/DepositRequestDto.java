@@ -24,9 +24,7 @@ public class DepositRequestDto {
 
     private LocalDateTime requestDate;
 
-    private long accountNumber;
+    private double splitCheckingAmount;
 
-    private double spitCheckingAmount;
-
-    private double spitSavingsAmount;
+    private double splitSavingsAmount;
 }

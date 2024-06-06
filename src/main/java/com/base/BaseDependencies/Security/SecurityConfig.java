@@ -54,15 +54,17 @@ public class SecurityConfig {
 
         protected class Endpoints {
                 protected static final String AUTH = "/auth/**";
-                protected static final String[] GETREQUESTADMIN = { "/account/all", "/client/all", "/client/loan/admin" };
-                protected static final String[] PATCHREQUESTADMIN = { "/client/loan/status" };
+                protected static final String[] GETREQUESTADMIN = { "/account/all", "/client/all", "/client/loan/admin",
+                                "/account/deposit/all" };
+                protected static final String[] PATCHREQUESTADMIN = { "/client/loan/status", "/account/deposit" };
                 protected static final String[] POSTREQUESTCLIENT = {
                                 "/transaction/outer-bank", "/transaction/inner-bank",
-                                "/transaction/bill", "/account/create", "/client/loan", "/transaction/loan" };
+                                "/transaction/bill", "/account/create", "/client/loan", "/transaction/loan",
+                                "/account/deposit" };
                 protected static final String[] DELETEREQUESTCLIENT = { "/client/remove", "/client/beneficiary/**",
                                 "/client/bill/**", "/account/{accountId}" };
                 protected static final String[] GETREQUESTCLIENT = { "/client/beneficiary", "client/bill",
-                                "/client/profile", "/client/loan", "/client/loan/{loanId}" };
+                                "/client/profile", "/client/loan", "/client/loan/{loanId}", "/account/deposit" };
                 protected static final String[] PATCHREQUESTCLIENT = { "/client/password", "/client/profile" };
                 protected static final String[] GETREQUESTBOTH = { "/account/client",
                                 "/account/{accountId}", "/transaction/accounttransactions/**",
