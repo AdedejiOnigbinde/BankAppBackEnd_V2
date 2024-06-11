@@ -1,5 +1,6 @@
 package com.base.BaseDependencies.Dtos.RequestDtos;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class DepositRequestDto {
     private int depositRequestId;
 
-    private long checkNumber;
+    private String checkNumber;
 
     private String checkBank;
 
