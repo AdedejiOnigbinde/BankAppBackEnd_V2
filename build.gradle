@@ -44,7 +44,7 @@ tasks.named('test') {
 jar {
   manifest {
     attributes(
-      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
       'Main-Class': 'com.base.BaseDependencies.BaseDependenciesApplication'
     )
   }
