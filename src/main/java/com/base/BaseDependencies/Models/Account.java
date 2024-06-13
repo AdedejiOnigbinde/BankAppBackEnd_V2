@@ -37,13 +37,13 @@ public class Account implements Serializable {
     @JsonManagedReference
     private Client ownerId;
 
-    @Column(columnDefinition = "double default 0")
+    @Column(columnDefinition = "double precision default 0")
     private double balance;
 
-    @Column(columnDefinition = "double default 1000000")
+    @Column(columnDefinition = "double precision default 1000000")
     private double dailyTransferLimit;
 
-    @Column(columnDefinition = "double default 0")
+    @Column(columnDefinition = "double precision default 0")
     private double calcLimit;
 
     @OneToMany(mappedBy = "fromAccount", cascade = CascadeType.ALL, orphanRemoval = true)
