@@ -16,7 +16,6 @@ import lombok.extern.log4j.Log4j2;
 @Component
 @Aspect
 public class LoggingAspect {
-
     
     @Pointcut("within(com.base.BaseDependencies.*)")
     public void generalPointCutLogger() {}
