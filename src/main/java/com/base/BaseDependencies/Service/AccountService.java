@@ -41,7 +41,7 @@ public class AccountService {
         clientAccounts.forEach(account -> {
             if (account.getAccountType().equalsIgnoreCase(accountType.get("accountType"))) {
                 throw new ClientAlreadyExists(ErrorMessageConstants.ACCOUNT_CREATION_EXCEPTION_MESSAGE);
-            }else if(!accountType.get("accountType").equalsIgnoreCase("savings") || !accountType.get("accountType").equalsIgnoreCase("checkings") ){
+            }else if(!accountType.get("accountType").equalsIgnoreCase("savings") && !accountType.get("accountType").equalsIgnoreCase("checkings") ){
                 throw new AccountCreation(ErrorMessageConstants.ACCOUNT_BAD_CREATION_EXCEPTION_MESSAGE);
             }
         });
