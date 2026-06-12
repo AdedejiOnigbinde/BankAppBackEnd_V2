@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "LimitModificationRequests")
 public class LimitModificationRequest implements Serializable{
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "limit_modification_id", updatable = false, nullable = false, unique = true)

@@ -2,6 +2,8 @@ package com.base.BaseDependencies.Controller;
 
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,21 +27,21 @@ public class AuthController {
     private ClientService clientService;
 
     @PostMapping("register")
-    public ResponseEntity<String> registerClient(@RequestBody RegClientDto request) {
+    public ResponseEntity<String> registerClient(@Valid @RequestBody RegClientDto request) {
         String response = clientService.createClient(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 
     @PostMapping("register-admin")
-    public ResponseEntity<String> registerAdmin(@RequestBody RegClientDto request) {
+    public ResponseEntity<String> registerAdmin(@Valid @RequestBody RegClientDto request) {
         String response = clientService.createAdmin(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String, String>> loginClient(@RequestBody LoginClientDto request) {
+    public ResponseEntity<Map<String, String>> loginClient(@Valid @RequestBody LoginClientDto request) {
         Map<String, String> response = clientService.verifyClient(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.Constants.GeneralMessageConstants;
@@ -38,6 +39,7 @@ public class BillService {
     private ClientRepo clientRepo;
     private JwtManager tokenManager;
     private ModelMapper modelMapper;
+    private ClientService clientService;
 
     public String saveBill(String category, String biller, String nickname, Client client) {
         Bill newBill = Bill.builder()
@@ -82,16 +84,19 @@ public class BillService {
         return GeneralMessageConstants.SUCCESSFUL_BILL_DELETION_MESSAGE;
     }
 
+    @Transactional
     public String payBill(PayBillRequestDto billsDto, String token) {
+        if (billsDto.getAmount() <= 0) {
+            throw new InvalidTransaction(ErrorMessageConstants.INVALID_AMOUNT_EXCEPTION_MESSAGE);
+        }
         String response = "";
         String savedBillResponse = "";
         String ownerUserName = tokenManager.parseToken(token);
         Client getClient = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
+        clientService.verifyPin(getClient, billsDto.getPin());
         Account checkingAccount = determineCheckingAccount(getClient.getAccounts());
-        if (getClient.getPinNumber() != billsDto.getPin()) {
-            throw new InvalidTransaction(ErrorMessageConstants.INVALID_PIN_EXCEPTION_MESSAGE);
-        } else if (checkingAccount == null) {
+        if (checkingAccount == null) {
             throw new InvalidTransaction(ErrorMessageConstants.BILL_PAYMENT_EXCEPTION_MESSAGE);
         } else if (checkingAccount.getBalance() < billsDto.getAmount()) {
             throw new InsufficentFunds(ErrorMessageConstants.TRANSACTION_INSUFFICIENT_FUNDS_EXCEPTION_MESSAGE);

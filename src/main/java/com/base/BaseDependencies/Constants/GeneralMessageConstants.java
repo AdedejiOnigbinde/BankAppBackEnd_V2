@@ -23,5 +23,7 @@ public class GeneralMessageConstants {
     public static final String HANDLE_MONEY = "handlemoney";
     public static final String CHECKINGS_ACCOUNT = "checkings";
     public static final String SAVINGS_ACCOUNT = "savings";
+    public static final int MAX_FAILED_PIN_ATTEMPTS = 5;
+    public static final long PIN_LOCKOUT_DURATION_MINUTES = 15;
 
 }

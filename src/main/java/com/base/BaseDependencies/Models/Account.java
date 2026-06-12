@@ -28,11 +28,12 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class Account implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @Column(name = "account_number", updatable = false, nullable = false, unique = true)
     private long accountNumber;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     @JsonManagedReference
     private Client ownerId;

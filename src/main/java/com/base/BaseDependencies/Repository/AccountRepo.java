@@ -6,11 +6,10 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import com.base.BaseDependencies.Models.Account;
 import com.base.BaseDependencies.Models.Client;
-@Repository
+
 public interface AccountRepo extends JpaRepository<Account, Long>{
 
     @Transactional
@@ -19,5 +18,7 @@ public interface AccountRepo extends JpaRepository<Account, Long>{
     Optional<Account> findByAccountNumberAndOwnerId(long accountNumber, Client client);
 
     Optional<List<Account>> findByOwnerId(Client client);
+
+    boolean existsByOwnerIdAndAccountTypeIgnoreCase(Client client, String accountType);
     
 }

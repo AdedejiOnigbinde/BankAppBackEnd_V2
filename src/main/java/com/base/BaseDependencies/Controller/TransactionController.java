@@ -3,6 +3,8 @@ package com.base.BaseDependencies.Controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.base.BaseDependencies.Dtos.PaidBillsDto;
@@ -35,7 +38,7 @@ public class TransactionController {
     private LoansService loansService;
 
     @PostMapping("/outer-bank")
-    public ResponseEntity<String> outerTransfer(@RequestBody TransferRequestDto request,
+    public ResponseEntity<String> outerTransfer(@Valid @RequestBody TransferRequestDto request,
             @RequestHeader("Authorization") String userToken) {
 
         String transferTransaction = transactionService.outerBankTransfer(request, userToken);
@@ -44,7 +47,7 @@ public class TransactionController {
     }
 
     @PostMapping("/inner-bank")
-    public ResponseEntity<String> innerTransfer(@RequestBody TransferRequestDto request,
+    public ResponseEntity<String> innerTransfer(@Valid @RequestBody TransferRequestDto request,
             @RequestHeader("Authorization") String userToken) {
 
         String response = transactionService.innerBankTransfer(request, userToken);
@@ -54,9 +57,10 @@ public class TransactionController {
 
     @GetMapping("/{accountId}")
     public ResponseEntity<List<TransactionDto>> trasnfer(@PathVariable long accountId,
+            @RequestParam(defaultValue = "0") int page,
             @RequestHeader("Authorization") String userToken) {
 
-        List<TransactionDto> response = transactionService.getTransactionByAccountNumber(accountId, userToken);
+        List<TransactionDto> response = transactionService.getTransactionByAccountNumber(accountId, userToken, page);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
@@ -77,7 +81,7 @@ public class TransactionController {
     }
 
     @PostMapping("/bill")
-    public ResponseEntity<String> postMethodName(@RequestBody PayBillRequestDto request,
+    public ResponseEntity<String> postMethodName(@Valid @RequestBody PayBillRequestDto request,
             @RequestHeader("Authorization") String userToken) {
         String response = billService.payBill(request, userToken);
 

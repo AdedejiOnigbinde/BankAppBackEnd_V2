@@ -3,6 +3,8 @@ package com.base.BaseDependencies.Controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.base.BaseDependencies.Dtos.AccountDto;
 import com.base.BaseDependencies.Dtos.RequestDtos.DepositRequestDto;
-import com.base.BaseDependencies.Models.Account;
 import com.base.BaseDependencies.Service.AccountService;
 import com.base.BaseDependencies.Service.DepositRequestService;
 
@@ -44,9 +45,9 @@ public class AccountController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<Account>> getAllAccounts(@RequestHeader("Authorization") String userToken,
+    public ResponseEntity<Page<AccountDto>> getAllAccounts(@RequestHeader("Authorization") String userToken,
             @RequestParam(defaultValue = "0") int page) {
-        Page<Account> response = accountService.getAllAccounts(page);
+        Page<AccountDto> response = accountService.getAllAccounts(page);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -73,7 +74,7 @@ public class AccountController {
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<String> createDepositRequest(@RequestBody DepositRequestDto request,
+    public ResponseEntity<String> createDepositRequest(@Valid @RequestBody DepositRequestDto request,
             @RequestHeader("Authorization") String userToken) {
         String response = depositRequestService.createDepositRequest(request, userToken);
         return new ResponseEntity<String>(response, HttpStatus.CREATED);

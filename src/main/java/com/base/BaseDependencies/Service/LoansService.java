@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.Constants.GeneralMessageConstants;
@@ -72,13 +73,17 @@ public class LoansService {
         return response;
     }
 
+    @Transactional
     public String changeLoanStatus(Map<String, String> request, String token) {
         String getClientUserName = tokenManager.parseToken(token);
         Client existingClient = clientRepo.findByUserName(getClientUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
         if (existingClient.getRoles().get(0).getRoleName().equals("ADMIN")) {
-            int loanRequestId = Integer.parseInt(request.get("loanId"));
             String changeStatus = request.get("changeStatus");
+            if (changeStatus == null) {
+                throw new InvalidTransaction(ErrorMessageConstants.INVALID_REQUEST_EXCEPTION_MESSAGE);
+            }
+            int loanRequestId = parseIntOrThrow(request.get("loanId"));
             LoanRequest loanRequest = loansRequestRepo.findById(loanRequestId)
                     .orElseThrow(() -> new LoanNotFound(ErrorMessageConstants.LOAN_NOT_FOUND_EXCEPTION_MESSAGE));
             Loan foundLoan = loansRepo.findById(loanRequest.getLoanId())
@@ -126,15 +131,18 @@ public class LoansService {
         return modelMapper.map(foundLoan, LoanDto.class);
     }
 
+    @Transactional
     public String payLoan(Map<String, String> request, String token) {
         String getClientUserName = tokenManager.parseToken(token);
-        int loanId = Integer.parseInt(request.get("loanId"));
+        int loanId = parseIntOrThrow(request.get("loanId"));
         Client existingClient = clientRepo.findByUserName(getClientUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
         Loan foundLoan = loansRepo.findById(loanId)
                 .orElseThrow(() -> new LoanNotFound(ErrorMessageConstants.LOAN_NOT_FOUND_EXCEPTION_MESSAGE));
-        double paymentAmount = Double.parseDouble(request.get("paymentAmount"));
-        if (!foundLoan.getLoanOwner().equals(existingClient)) {
+        double paymentAmount = parseDoubleOrThrow(request.get("paymentAmount"));
+        if (paymentAmount <= 0) {
+            throw new InvalidTransaction(ErrorMessageConstants.INVALID_AMOUNT_EXCEPTION_MESSAGE);
+        } else if (!foundLoan.getLoanOwner().equals(existingClient)) {
             throw new LoanNotFound(ErrorMessageConstants.LOAN_NOT_FOUND_EXCEPTION_MESSAGE);
         } else if (foundLoan.getAmount() < (foundLoan.getPaidAmount() + paymentAmount)) {
             throw new InvalidTransaction("You Cannot Over Pay A Loan");
@@ -191,5 +199,21 @@ public class LoansService {
             }
         }
         throw new AccountNotFound(ErrorMessageConstants.LOAN_APPROVAL_ACCOUNT_MESSAGE);
+    }
+
+    private int parseIntOrThrow(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new InvalidTransaction(ErrorMessageConstants.INVALID_REQUEST_EXCEPTION_MESSAGE);
+        }
+    }
+
+    private double parseDoubleOrThrow(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new InvalidTransaction(ErrorMessageConstants.INVALID_REQUEST_EXCEPTION_MESSAGE);
+        }
     }
 }

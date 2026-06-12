@@ -27,4 +27,7 @@ public class ErrorMessageConstants {
     public static final String LOAN_APPROVAL_ACCOUNT_MESSAGE="You Can Only Pay A Loan Into A Checking Account";
     public static final String DEPOSIT_SPLIT_EXCEPTION_MESSAGE="You Can Only Split A deposit If You Have Two Accounts";
     public static final String DEPOSIT_SPLIT_TOTAL_EXCEPTION_MESSAGE="The Split Amount Must Equal The Total Check Amount";
+    public static final String INVALID_AMOUNT_EXCEPTION_MESSAGE="Transaction Amount Must Be Greater Than Zero";
+    public static final String ACCOUNT_LOCKED_EXCEPTION_MESSAGE="Account Locked Due To Too Many Failed Pin Attempts. Please Try Again Later";
+    public static final String INVALID_REQUEST_EXCEPTION_MESSAGE="Invalid Or Missing Request Fields";
 }

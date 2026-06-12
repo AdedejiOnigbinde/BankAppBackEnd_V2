@@ -1,7 +1,6 @@
 package com.base.BaseDependencies.Models;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -30,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Table(name = "DepositRequests")
 public class DepositRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "deposit_request_id", updatable = false, nullable = false, unique = true)
