@@ -1,6 +1,7 @@
 package com.base.BaseDependencies.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.Constants.GeneralMessageConstants;
@@ -19,7 +21,6 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.Insufficent
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTransaction;
 import com.base.BaseDependencies.Models.Account;
 import com.base.BaseDependencies.Models.Client;
-import com.base.BaseDependencies.Models.DepositRequest;
 import com.base.BaseDependencies.Models.Transaction;
 import com.base.BaseDependencies.Repository.AccountRepo;
 import com.base.BaseDependencies.Repository.ClientRepo;
@@ -31,21 +32,28 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Service
 public class TransactionService {
+    private static final int TRANSACTION_PAGE_SIZE = 20;
+
     private TransactionRepo transactionRepo;
     private AccountRepo accountRepo;
     private ClientRepo clientRepo;
     private JwtManager tokenManager;
     private BeneficiaryService beneficiaryService;
+    private ClientService clientService;
 
+    @Transactional
     public String outerBankTransfer(TransferRequestDto transDto, String token) {
+        if (transDto.getAmount() <= 0) {
+            throw new InvalidTransaction(ErrorMessageConstants.INVALID_AMOUNT_EXCEPTION_MESSAGE);
+        }
         String ownerUserName = tokenManager.parseToken(token);
         Client getClient = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
 
+        clientService.verifyPin(getClient, transDto.getPin());
+
         List<Account> senderAccountList = getClient.getAccounts();
-        if (getClient.getPinNumber() != transDto.getPin()) {
-            throw new InvalidTransaction(ErrorMessageConstants.INVALID_PIN_EXCEPTION_MESSAGE);
-        } else if (GeneralMessageConstants.HANDLE_MONEY.equalsIgnoreCase(transDto.getBank())) {
+        if (GeneralMessageConstants.HANDLE_MONEY.equalsIgnoreCase(transDto.getBank())) {
             Account toAccount = accountRepo.findById(transDto.getToAcct())
                     .orElseThrow(() -> new AccountNotFound(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE));
             return tranferbetweenTwoAccounts(senderAccountList, toAccount, transDto);
@@ -55,7 +63,11 @@ public class TransactionService {
 
     }
 
+    @Transactional
     public String innerBankTransfer(TransferRequestDto transDto, String token) {
+        if (transDto.getAmount() <= 0) {
+            throw new InvalidTransaction(ErrorMessageConstants.INVALID_AMOUNT_EXCEPTION_MESSAGE);
+        }
         Account fromAccount = accountRepo.findById(transDto.getFromacct())
                 .orElseThrow(() -> new AccountNotFound(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE));
         if (!verifyUserAccount(fromAccount, token, transDto.getPin())) {
@@ -88,8 +100,7 @@ public class TransactionService {
         return GeneralMessageConstants.SUCCESSFUL_TRANSFER_MESSAGE;
     }
 
-    // Edit function to get pageable transaction by transaction type
-    public List<TransactionDto> getTransactionByAccountNumber(long accountNumber, String token) {
+    public List<TransactionDto> getTransactionByAccountNumber(long accountNumber, String token, int page) {
         List<TransactionDto> transactionDtos = new ArrayList<>();
         Account foundAccount = accountRepo.findById(accountNumber)
                 .orElseThrow(() -> new AccountNotFound(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE));
@@ -97,10 +108,10 @@ public class TransactionService {
         if (!verifyUserAccount(foundAccount, token, 0)) {
             throw new InvalidTransaction(ErrorMessageConstants.UAUTHORIZED_REQUEST_EXCEPTION_MESSAGE);
         }
-        foundAccount.getTransaction().forEach(transaction -> {
-            TransactionDto transactionDto = mapTransactionToDto(transaction);
-            transactionDtos.add(transactionDto);
-        });
+        Pageable pageable = PageRequest.of(page, TRANSACTION_PAGE_SIZE, Sort.by("transactionDate").descending());
+        transactionRepo.findByFromAccountOrderByTransactionDateDesc(foundAccount, pageable)
+                .orElse(Collections.emptyList())
+                .forEach(transaction -> transactionDtos.add(mapTransactionToDto(transaction)));
         return transactionDtos;
     }
 
@@ -226,7 +237,7 @@ public class TransactionService {
         Client getClient = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
         if (pin != 0) {
-            return getClient.getPinNumber() == pin && getClient.getAccounts().contains(account);
+            clientService.verifyPin(getClient, pin);
         }
         return getClient.getAccounts().contains(account);
     }

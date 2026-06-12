@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "Bills")
 @Builder
 public class Bill implements Serializable{
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bill_id", updatable = false, nullable = false, unique = true)

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.Constants.GeneralMessageConstants;
@@ -66,16 +67,28 @@ public class DepositRequestService {
         return GeneralMessageConstants.SUCCESSFUL_DEPOSIT_REQUEST_MESSAGE;
     }
 
+    @Transactional
     public String deposit(Map<String, String> request, String token) {
         String ownerUserName = tokenManager.parseToken(token);
         Client getClient = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
 
         if (getClient.getRoles().get(0).getRoleName().equals("ADMIN")) {
-            DepositRequest deposit = depositRequestRepo.findById(Integer.parseInt(request.get("depositRequestId")))
+            String status = request.get("status");
+            String depositRequestIdParam = request.get("depositRequestId");
+            if (status == null || depositRequestIdParam == null) {
+                throw new InvalidTransaction(ErrorMessageConstants.INVALID_REQUEST_EXCEPTION_MESSAGE);
+            }
+            int depositRequestId;
+            try {
+                depositRequestId = Integer.parseInt(depositRequestIdParam);
+            } catch (NumberFormatException e) {
+                throw new InvalidTransaction(ErrorMessageConstants.INVALID_REQUEST_EXCEPTION_MESSAGE);
+            }
+            DepositRequest deposit = depositRequestRepo.findById(depositRequestId)
                     .orElseThrow(() -> new DepositRequestNotFound(
                             ErrorMessageConstants.DEPOSIT_NOT_FOUND_EXCEPTION_MESSAGE));
-            if (request.get("status").equals(GeneralMessageConstants.APPROVE_STATUS)) {
+            if (status.equals(GeneralMessageConstants.APPROVE_STATUS)) {
                 if (deposit.getSplitCheckingAmount() > 0 && deposit.getSplitSavingsAmount() > 0) {
                     List<Account> clientAccountList = deposit.getDepositAccount().getOwnerId().getAccounts();
                     HashMap<String, Account> accountMap = determineAccountType(clientAccountList);
@@ -89,10 +102,8 @@ public class DepositRequestService {
                     depositAccount.setBalance(depositAccount.getBalance() + deposit.getCheckAmount());
                     accountRepo.save(depositAccount);
                 }
-                deposit.setStatus(request.get("status"));
-            } else {
-                deposit.setStatus(request.get("status"));
             }
+            deposit.setStatus(status);
             depositRequestRepo.save(deposit);
         } else {
             throw new InvalidTransaction(ErrorMessageConstants.UAUTHORIZED_REQUEST_EXCEPTION_MESSAGE);

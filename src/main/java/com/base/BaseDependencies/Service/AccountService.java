@@ -27,6 +27,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Service
 public class AccountService {
+    private static final int PAGE_SIZE = 10;
+
     private AccountRepo accountRepo;
     private ClientRepo clientRepo;
     private JwtManager tokenManager;
@@ -37,18 +39,18 @@ public class AccountService {
         String ownerUserName = tokenManager.parseToken(token);
         Client getClient = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
-        List<Account> clientAccounts = getClient.getAccounts();
-        clientAccounts.forEach(account -> {
-            if (account.getAccountType().equalsIgnoreCase(accountType.get("accountType"))) {
-                throw new ClientAlreadyExists(ErrorMessageConstants.ACCOUNT_CREATION_EXCEPTION_MESSAGE);
-            }else if(!accountType.get("accountType").equalsIgnoreCase("savings") && !accountType.get("accountType").equalsIgnoreCase("checkings") ){
-                throw new AccountCreation(ErrorMessageConstants.ACCOUNT_BAD_CREATION_EXCEPTION_MESSAGE);
-            }
-        });
+        String requestedType = accountType.get("accountType");
+        if (requestedType == null
+                || (!requestedType.equalsIgnoreCase("savings") && !requestedType.equalsIgnoreCase("checkings"))) {
+            throw new AccountCreation(ErrorMessageConstants.ACCOUNT_BAD_CREATION_EXCEPTION_MESSAGE);
+        }
+        if (accountRepo.existsByOwnerIdAndAccountTypeIgnoreCase(getClient, requestedType)) {
+            throw new ClientAlreadyExists(ErrorMessageConstants.ACCOUNT_CREATION_EXCEPTION_MESSAGE);
+        }
         Account newAccount = Account.builder()
                 .ownerId(getClient)
                 .accountNumber(accountNumberGenerator.generateAccountNumber(12))
-                .accountType(accountType.get("accountType"))
+                .accountType(requestedType)
                 .accountStatus("ACTIVE")
                 .dailyTransferLimit(100000)
                 .build();
@@ -85,10 +87,10 @@ public class AccountService {
         return mapAccountToDto(getAccount);
     }
 
-    public Page<Account> getAllAccounts(int page) {
+    public Page<AccountDto> getAllAccounts(int page) {
 
-        PageRequest pageRequest = PageRequest.of(page, page);
-        return accountRepo.findAll(pageRequest);
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
+        return accountRepo.findAll(pageRequest).map(this::mapAccountToDto);
     }
 
     private AccountDto mapAccountToDto(Account account) {

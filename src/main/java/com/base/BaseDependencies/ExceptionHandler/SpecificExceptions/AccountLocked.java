@@ -1,11 +1,10 @@
 package com.base.BaseDependencies.ExceptionHandler.SpecificExceptions;
 
-public class ClientNotFound extends RuntimeException {
+public class AccountLocked extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public ClientNotFound(String message) {
+    public AccountLocked(String message) {
         super(message);
     }
 
-    
 }

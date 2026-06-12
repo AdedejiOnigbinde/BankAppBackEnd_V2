@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -26,21 +27,20 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-                http.csrf().disable().cors(Customizer.withDefaults())
-                                .authorizeHttpRequests()
-                                .antMatchers(HttpMethod.POST, Endpoints.AUTH).permitAll()
-                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTADMIN).hasAuthority("ADMIN")
-                                .antMatchers(HttpMethod.PATCH, Endpoints.PATCHREQUESTADMIN).hasAuthority("ADMIN")
-                                .antMatchers(HttpMethod.POST, Endpoints.POSTREQUESTCLIENT).hasAuthority("USER")
-                                .antMatchers(HttpMethod.DELETE, Endpoints.DELETEREQUESTCLIENT).hasAuthority("USER")
-                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTBOTH)
-                                .hasAnyAuthority("ADMIN", "USER")
-                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTCLIENT).hasAnyAuthority("USER")
-                                .antMatchers(HttpMethod.PATCH, Endpoints.PATCHREQUESTCLIENT).hasAnyAuthority("USER")
-                                .anyRequest().authenticated()
-                                .and()
-                                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                                .and()
+                http.csrf(AbstractHttpConfigurer::disable)
+                                .cors(Customizer.withDefaults())
+                                .authorizeHttpRequests(auth -> auth
+                                                .antMatchers(HttpMethod.POST, Endpoints.AUTH).permitAll()
+                                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTADMIN).hasAuthority("ADMIN")
+                                                .antMatchers(HttpMethod.PATCH, Endpoints.PATCHREQUESTADMIN).hasAuthority("ADMIN")
+                                                .antMatchers(HttpMethod.POST, Endpoints.POSTREQUESTCLIENT).hasAuthority("USER")
+                                                .antMatchers(HttpMethod.DELETE, Endpoints.DELETEREQUESTCLIENT).hasAuthority("USER")
+                                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTBOTH)
+                                                .hasAnyAuthority("ADMIN", "USER")
+                                                .antMatchers(HttpMethod.GET, Endpoints.GETREQUESTCLIENT).hasAnyAuthority("USER")
+                                                .antMatchers(HttpMethod.PATCH, Endpoints.PATCHREQUESTCLIENT).hasAnyAuthority("USER")
+                                                .anyRequest().authenticated())
+                                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authenticationProvider(authenticationProvider)
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -64,12 +64,12 @@ public class SecurityConfig {
                                 "/account/deposit" };
                 protected static final String[] DELETEREQUESTCLIENT = { "/client/remove", "/client/beneficiary/**",
                                 "/client/bill/**", "/account/{accountId}" };
-                protected static final String[] GETREQUESTCLIENT = { "/client/beneficiary", "client/bill",
+                protected static final String[] GETREQUESTCLIENT = { "/client/beneficiary", "/client/bill",
                                 "/client/profile", "/client/loan", "/client/loan/{loanId}", "/account/deposit" };
-                protected static final String[] PATCHREQUESTCLIENT = { "/client/password", "/client/profile" };
+                protected static final String[] PATCHREQUESTCLIENT = { "/client/profile/password", "/client/profile" };
                 protected static final String[] GETREQUESTBOTH = { "/account/client",
-                                "/account/{accountId}", "/transaction/accounttransactions/**",
-                                "/transaction/recent", "/transaction/bills" };
+                                "/account/{accountId}", "/transaction/{accountId}",
+                                "/transaction/recent", "/transaction/bill" };
 
         }
 

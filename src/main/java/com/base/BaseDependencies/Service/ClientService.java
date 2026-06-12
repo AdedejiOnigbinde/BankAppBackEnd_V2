@@ -1,20 +1,22 @@
 package com.base.BaseDependencies.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.base.BaseDependencies.Constants.ErrorMessageConstants;
 import com.base.BaseDependencies.Constants.GeneralMessageConstants;
@@ -22,9 +24,11 @@ import com.base.BaseDependencies.Dtos.ClientDto;
 import com.base.BaseDependencies.Dtos.RequestDtos.ChangePasswordRequestDto;
 import com.base.BaseDependencies.Dtos.RequestDtos.LoginClientDto;
 import com.base.BaseDependencies.Dtos.RequestDtos.RegClientDto;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.AccountLocked;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientAlreadyExists;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidPassword;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTransaction;
 import com.base.BaseDependencies.Models.Client;
 import com.base.BaseDependencies.Models.Role;
 import com.base.BaseDependencies.Repository.ClientRepo;
@@ -36,6 +40,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Service
 public class ClientService {
+    private static final int PAGE_SIZE = 10;
 
     private ClientRepo clientRepo;
     private JwtManager tokenManager;
@@ -100,11 +105,9 @@ public class ClientService {
         return response;
     }
 
-    public List<ClientDto> getAllClients() {
-        List<Client> clients = clientRepo.findAll();
-        return clients.stream()
-                .map(client -> modelMapper.map(client, ClientDto.class))
-                .collect(Collectors.toList());
+    public Page<ClientDto> getAllClients(int page) {
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
+        return clientRepo.findAll(pageRequest).map(client -> modelMapper.map(client, ClientDto.class));
     }
 
     public boolean deleteClient(String token) {
@@ -150,5 +153,35 @@ public class ClientService {
         ClientDto mappedClient = modelMapper.map(existingClient, ClientDto.class);
 
         return mappedClient;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = InvalidTransaction.class)
+    public void verifyPin(Client client, int pin) {
+        LocalDateTime now = LocalDateTime.now();
+        boolean stateChanged = false;
+        if (client.getPinLockedUntil() != null) {
+            if (client.getPinLockedUntil().isAfter(now)) {
+                throw new AccountLocked(ErrorMessageConstants.ACCOUNT_LOCKED_EXCEPTION_MESSAGE);
+            }
+            client.setPinLockedUntil(null);
+            client.setFailedPinAttempts(0);
+            stateChanged = true;
+        }
+        if (client.getPinNumber() != pin) {
+            client.setFailedPinAttempts(client.getFailedPinAttempts() + 1);
+            if (client.getFailedPinAttempts() >= GeneralMessageConstants.MAX_FAILED_PIN_ATTEMPTS) {
+                client.setPinLockedUntil(now.plusMinutes(GeneralMessageConstants.PIN_LOCKOUT_DURATION_MINUTES));
+                client.setFailedPinAttempts(0);
+            }
+            clientRepo.save(client);
+            throw new InvalidTransaction(ErrorMessageConstants.INVALID_PIN_EXCEPTION_MESSAGE);
+        }
+        if (client.getFailedPinAttempts() != 0) {
+            client.setFailedPinAttempts(0);
+            stateChanged = true;
+        }
+        if (stateChanged) {
+            clientRepo.save(client);
+        }
     }
 }

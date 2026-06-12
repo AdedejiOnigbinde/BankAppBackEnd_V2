@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "Beneficiaries")
 @Builder
 public class Beneficiary implements Serializable{
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

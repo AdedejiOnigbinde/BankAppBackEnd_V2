@@ -29,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "Transactions")
 public class Transaction implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "trans_id", updatable = false, nullable = false, unique = true)

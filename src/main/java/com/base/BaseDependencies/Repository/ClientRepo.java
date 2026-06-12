@@ -9,7 +9,7 @@ import com.base.BaseDependencies.Models.Client;
 
 public interface ClientRepo extends JpaRepository<Client, Integer>{
 
-    Optional<Client> findBySsn(int ssn);
+    Optional<Client> findBySsn(String ssn);
 
     Optional<Client> findByFirstNameAndLastNameAndPassword(String firstName,String lastName,String password);
 

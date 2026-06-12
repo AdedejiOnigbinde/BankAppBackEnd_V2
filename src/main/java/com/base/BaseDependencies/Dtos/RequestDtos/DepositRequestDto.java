@@ -1,7 +1,10 @@
 package com.base.BaseDependencies.Dtos.RequestDtos;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,10 +16,13 @@ import lombok.NoArgsConstructor;
 public class DepositRequestDto {
     private int depositRequestId;
 
+    @NotBlank
     private String checkNumber;
 
+    @NotBlank
     private String checkBank;
 
+    @Positive
     private double checkAmount;
 
     private String description;
@@ -25,7 +31,9 @@ public class DepositRequestDto {
 
     private LocalDateTime requestDate;
 
+    @PositiveOrZero
     private double splitCheckingAmount;
 
+    @PositiveOrZero
     private double splitSavingsAmount;
 }
