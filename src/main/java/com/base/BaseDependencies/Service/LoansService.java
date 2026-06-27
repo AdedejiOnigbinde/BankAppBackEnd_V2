@@ -125,7 +125,7 @@ public class LoansService {
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
         Loan foundLoan = loansRepo.findById(loanId)
                 .orElseThrow(() -> new LoanNotFound(ErrorMessageConstants.LOAN_NOT_FOUND_EXCEPTION_MESSAGE));
-        if (!foundLoan.getLoanOwner().equals(existingClient)) {
+        if (foundLoan.getLoanOwner().getClientId() != existingClient.getClientId()) {
             throw new LoanNotFound(ErrorMessageConstants.LOAN_NOT_FOUND_EXCEPTION_MESSAGE);
         }
         return modelMapper.map(foundLoan, LoanDto.class);
@@ -142,7 +142,7 @@ public class LoansService {
         double paymentAmount = parseDoubleOrThrow(request.get("paymentAmount"));
         if (paymentAmount <= 0) {
             throw new InvalidTransaction(ErrorMessageConstants.INVALID_AMOUNT_EXCEPTION_MESSAGE);
-        } else if (!foundLoan.getLoanOwner().equals(existingClient)) {
+        } else if (foundLoan.getLoanOwner().getClientId() != existingClient.getClientId()) {
             throw new LoanNotFound(ErrorMessageConstants.LOAN_NOT_FOUND_EXCEPTION_MESSAGE);
         } else if (foundLoan.getAmount() < (foundLoan.getPaidAmount() + paymentAmount)) {
             throw new InvalidTransaction("You Cannot Over Pay A Loan");
