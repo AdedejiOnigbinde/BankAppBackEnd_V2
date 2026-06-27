@@ -121,11 +121,14 @@ public class TransactionService {
         Client getClient = clientRepo.findByUserName(ownerUserName)
                 .orElseThrow(() -> new ClientNotFound(ErrorMessageConstants.CLIENT_NOT_FOUND_EXCEPTION_MESSAGE));
         List<Account> account = accountRepo.findByOwnerId(getClient)
-                .orElseThrow(() -> new AccountNotFound(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE));
+                .orElse(Collections.emptyList());
+        if (account.isEmpty()) {
+            return transactions;
+        }
         Pageable pageable = PageRequest.of(0, 5, Sort.by("transactionDate").descending());
         List<Transaction> recentTransactions = transactionRepo
                 .findByFromAccountOrderByTransactionDateDesc(account.get(0), pageable)
-                .orElseThrow(() -> new AccountNotFound(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE));
+                .orElse(Collections.emptyList());
         recentTransactions.forEach(transaction -> {
             TransactionDto mappedTransaction = mapTransactionToDto(transaction);
             transactions.add(mappedTransaction);
