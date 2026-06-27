@@ -8,14 +8,13 @@ import javax.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +29,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/account")
-@CrossOrigin("*")
 public class AccountController {
 
     private final AccountService accountService;
@@ -38,58 +36,56 @@ public class AccountController {
 
     @PostMapping("/create")
     public ResponseEntity<AccountDto> createAccount(@RequestBody Map<String, String> request,
-            @RequestHeader("Authorization") String userToken) {
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         AccountDto response = accountService.createAccount(request, userToken);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<AccountDto>> getAllAccounts(@RequestHeader("Authorization") String userToken,
+    public ResponseEntity<Page<AccountDto>> getAllAccounts(
             @RequestParam(defaultValue = "0") int page) {
         Page<AccountDto> response = accountService.getAllAccounts(page);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/client")
-    public ResponseEntity<List<AccountDto>> getAccountsByUserName(@RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<List<AccountDto>> getAccountsByUserName(
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         List<AccountDto> response = accountService.getAccountByClientUserName(userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{accountId}")
     public ResponseEntity<AccountDto> getAccountById(@PathVariable Long accountId,
-            @RequestHeader("Authorization") String userToken) {
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         AccountDto response = accountService.getAccountById(accountId, userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @DeleteMapping("/{accountId}")
     public ResponseEntity<HttpStatus> deleteAccount(@PathVariable Long accountId,
-            @RequestHeader("Authorization") String userToken) {
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         accountService.deleteAccount(accountId, userToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
     }
 
     @PostMapping("/deposit")
     public ResponseEntity<String> createDepositRequest(@Valid @RequestBody DepositRequestDto request,
-            @RequestHeader("Authorization") String userToken) {
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         String response = depositRequestService.createDepositRequest(request, userToken);
-        return new ResponseEntity<String>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("/deposit")
-    public ResponseEntity<String> editDepositRequest(@RequestBody Map<String,String> request,
-            @RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<String> editDepositRequest(@RequestBody Map<String, String> request,
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         String response = depositRequestService.deposit(request, userToken);
-        return new ResponseEntity<String>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/deposit")
     public ResponseEntity<List<DepositRequestDto>> getAllClientDepositRequest(
-            @RequestHeader("Authorization") String userToken) {
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         List<DepositRequestDto> response = depositRequestService.getAllClientDepositRequest(userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -99,5 +95,4 @@ public class AccountController {
         List<DepositRequestDto> response = depositRequestService.getAllDepositRequest();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 }

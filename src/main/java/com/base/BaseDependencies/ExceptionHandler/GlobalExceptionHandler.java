@@ -21,6 +21,7 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientAlrea
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.ClientNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.DepositRequestNotFound;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InsufficentFunds;
+import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidPassword;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidToken;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.InvalidTransaction;
 import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.LoanNotFound;
@@ -28,17 +29,22 @@ import com.base.BaseDependencies.ExceptionHandler.SpecificExceptions.LoanNotFoun
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({ AccountNotFound.class, ClientNotFound.class, InsufficentFunds.class,
-            InvalidTransaction.class, BeneficiaryNotFound.class, BillNotFound.class, LoanNotFound.class,
-            DepositRequestNotFound.class })
+    @ExceptionHandler({ AccountNotFound.class, ClientNotFound.class, BeneficiaryNotFound.class,
+            BillNotFound.class, LoanNotFound.class, DepositRequestNotFound.class })
     public ResponseEntity<String> handleNotFoundException(Exception exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler({ ClientAlreadyExists.class, InvalidToken.class, BadCredentialsException.class,
-            BeneficiaryExists.class, AccountCreation.class })
+            BeneficiaryExists.class, AccountCreation.class, InvalidTransaction.class,
+            InvalidPassword.class })
     public ResponseEntity<String> handleBadRequestException(Exception exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(InsufficentFunds.class)
+    public ResponseEntity<String> handleInsufficientFundsException(InsufficentFunds exception) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(exception.getMessage());
     }
 
     @ExceptionHandler(AccountLocked.class)
@@ -53,6 +59,12 @@ public class GlobalExceptionHandler {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleUnexpectedException(Exception exception) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An unexpected error occurred. Please try again later.");
     }
 
 }

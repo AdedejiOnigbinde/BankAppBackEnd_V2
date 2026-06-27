@@ -7,12 +7,11 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +29,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/transaction")
-@CrossOrigin("*")
 public class TransactionController {
 
     private TransactionService transactionService;
@@ -39,61 +37,51 @@ public class TransactionController {
 
     @PostMapping("/outer-bank")
     public ResponseEntity<String> outerTransfer(@Valid @RequestBody TransferRequestDto request,
-            @RequestHeader("Authorization") String userToken) {
-
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         String transferTransaction = transactionService.outerBankTransfer(request, userToken);
         return new ResponseEntity<>(transferTransaction, HttpStatus.OK);
-
     }
 
     @PostMapping("/inner-bank")
     public ResponseEntity<String> innerTransfer(@Valid @RequestBody TransferRequestDto request,
-            @RequestHeader("Authorization") String userToken) {
-
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         String response = transactionService.innerBankTransfer(request, userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<List<TransactionDto>> trasnfer(@PathVariable long accountId,
+    public ResponseEntity<List<TransactionDto>> getTransactions(@PathVariable long accountId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestHeader("Authorization") String userToken) {
-
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         List<TransactionDto> response = transactionService.getTransactionByAccountNumber(accountId, userToken, page);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @GetMapping("/recent")
     public ResponseEntity<List<TransactionDto>> getRecentTransactions(
-            @RequestHeader("Authorization") String userToken) {
-
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         List<TransactionDto> response = transactionService.getAllRecentTransactionsByAccount(userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @GetMapping("/bill")
-    public ResponseEntity<List<PaidBillsDto>> getMethodName(@RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<List<PaidBillsDto>> getPaidBills(
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         List<PaidBillsDto> response = billService.getClientPaidBills(userToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/bill")
-    public ResponseEntity<String> postMethodName(@Valid @RequestBody PayBillRequestDto request,
-            @RequestHeader("Authorization") String userToken) {
+    public ResponseEntity<String> payBill(@Valid @RequestBody PayBillRequestDto request,
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         String response = billService.payBill(request, userToken);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/loan")
     public ResponseEntity<String> payLoan(@RequestBody Map<String, String> request,
-            @RequestHeader("Authorization") String userToken) {
+            @CookieValue(name = "accessToken", required = false) String userToken) {
         String response = loansService.payLoan(request, userToken);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 }

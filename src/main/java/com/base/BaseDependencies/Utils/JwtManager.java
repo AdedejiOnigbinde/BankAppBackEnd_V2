@@ -95,10 +95,12 @@ public class JwtManager {
     }
 
     public String validateTokenFormat(String token) {
-        if (StringUtils.hasText(token) && token.startsWith("bearer ")) {
-            String bearerToken = token.substring(7, token.length());
-            return bearerToken;
+        if (!StringUtils.hasText(token)) {
+            throw new InvalidToken(ErrorMessageConstants.INVALID_TOKEN_EXCEPTION_MESSAGE);
         }
-        throw new InvalidToken(ErrorMessageConstants.INVALID_TOKEN_EXCEPTION_MESSAGE);
+        if (token.startsWith("bearer ")) {
+            return token.substring(7);
+        }
+        return token;
     }
 }

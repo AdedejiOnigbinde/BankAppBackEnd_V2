@@ -1,10 +1,12 @@
 package com.base.BaseDependencies.Security;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,7 +16,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.base.BaseDependencies.Utils.JwtManager;
@@ -34,8 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String token = request.getHeader("Authorization");
-        if (StringUtils.hasText(token) && !jwtManager.isTokenExpired(token)) {
+        String token = extractToken(request);
+        if (token != null && !jwtManager.isTokenExpired(token)) {
             String username = jwtManager.parseToken(token);
             Collection<GrantedAuthority> authorities = jwtManager.getAuthorities(token);
 
@@ -45,7 +46,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
         filterChain.doFilter(request, response);
+    }
 
+    private String extractToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        return Arrays.stream(cookies)
+                .filter(c -> "accessToken".equals(c.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
 

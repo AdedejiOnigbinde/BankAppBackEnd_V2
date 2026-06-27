@@ -55,7 +55,7 @@ public class Client implements Serializable {
 
     private String address;
 
-    private int pinNumber;
+    private String hashedPin;
 
     @Column(updatable = false, nullable = false, unique = true)
     private String ssn;

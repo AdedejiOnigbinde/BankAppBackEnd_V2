@@ -60,7 +60,7 @@ public class ClientService {
             client.setAddress(regClient.getAddress());
             client.setSsn(regClient.getSsn());
             client.setPassword(passwordEncoder.encode(regClient.getPassword()));
-            client.setPinNumber(regClient.getPinNumber());
+            client.setHashedPin(passwordEncoder.encode(String.valueOf(regClient.getPinNumber())));
             Role roles = roleRepo.findByRoleName("USER").get();
             client.setRoles(Collections.singletonList(roles));
             clientRepo.save(client);
@@ -81,7 +81,7 @@ public class ClientService {
                     .address(regClient.getAddress().toLowerCase())
                     .ssn(regClient.getSsn())
                     .password(passwordEncoder.encode(regClient.getPassword()))
-                    .pinNumber(regClient.getPinNumber())
+                    .hashedPin(passwordEncoder.encode(String.valueOf(regClient.getPinNumber())))
                     .roles(Collections.singletonList(roles))
                     .build();
             clientRepo.save(client);
@@ -107,7 +107,8 @@ public class ClientService {
 
     public Page<ClientDto> getAllClients(int page) {
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
-        return clientRepo.findAll(pageRequest).map(client -> modelMapper.map(client, ClientDto.class));
+        return clientRepo.findClientsByRoleName("USER", pageRequest)
+                .map(client -> modelMapper.map(client, ClientDto.class));
     }
 
     public boolean deleteClient(String token) {
@@ -167,7 +168,7 @@ public class ClientService {
             client.setFailedPinAttempts(0);
             stateChanged = true;
         }
-        if (client.getPinNumber() != pin) {
+        if (!passwordEncoder.matches(String.valueOf(pin), client.getHashedPin())) {
             client.setFailedPinAttempts(client.getFailedPinAttempts() + 1);
             if (client.getFailedPinAttempts() >= GeneralMessageConstants.MAX_FAILED_PIN_ATTEMPTS) {
                 client.setPinLockedUntil(now.plusMinutes(GeneralMessageConstants.PIN_LOCKOUT_DURATION_MINUTES));

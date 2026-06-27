@@ -48,7 +48,11 @@ public class DepositRequestService {
                 && (request.getSplitCheckingAmount() + request.getSplitSavingsAmount() != request.getCheckAmount())) {
             throw new InvalidTransaction(ErrorMessageConstants.DEPOSIT_SPLIT_TOTAL_EXCEPTION_MESSAGE);
         }
-        Account checkingAccount = determineCheckingAccount(getClient.getAccounts());
+        List<Account> accounts = getClient.getAccounts();
+        if (accounts.isEmpty()) {
+            throw new InvalidTransaction(ErrorMessageConstants.ACCOUNT_NOT_FOUND_EXCEPTION_MESSAGE);
+        }
+        Account checkingAccount = determineCheckingAccount(accounts);
 
         dRequest.setCheckNumber(request.getCheckNumber());
         dRequest.setCheckBank(request.getCheckBank());
@@ -58,11 +62,7 @@ public class DepositRequestService {
         dRequest.setSplitCheckingAmount(request.getSplitCheckingAmount());
         dRequest.setSplitSavingsAmount(request.getSplitSavingsAmount());
 
-        if (checkingAccount == null) {
-            dRequest.setDepositAccount(getClient.getAccounts().get(0));
-        } else {
-            dRequest.setDepositAccount(checkingAccount);
-        }
+        dRequest.setDepositAccount(checkingAccount != null ? checkingAccount : accounts.get(0));
         depositRequestRepo.save(dRequest);
         return GeneralMessageConstants.SUCCESSFUL_DEPOSIT_REQUEST_MESSAGE;
     }
@@ -88,12 +88,15 @@ public class DepositRequestService {
             DepositRequest deposit = depositRequestRepo.findById(depositRequestId)
                     .orElseThrow(() -> new DepositRequestNotFound(
                             ErrorMessageConstants.DEPOSIT_NOT_FOUND_EXCEPTION_MESSAGE));
-            if (status.equals(GeneralMessageConstants.APPROVE_STATUS)) {
+            if (status.equalsIgnoreCase(GeneralMessageConstants.APPROVE_STATUS)) {
                 if (deposit.getSplitCheckingAmount() > 0 && deposit.getSplitSavingsAmount() > 0) {
                     List<Account> clientAccountList = deposit.getDepositAccount().getOwnerId().getAccounts();
                     HashMap<String, Account> accountMap = determineAccountType(clientAccountList);
                     Account checkingsAccount = accountMap.get(GeneralMessageConstants.CHECKINGS_ACCOUNT);
                     Account savingsAccount = accountMap.get(GeneralMessageConstants.SAVINGS_ACCOUNT);
+                    if (checkingsAccount == null || savingsAccount == null) {
+                        throw new InvalidTransaction(ErrorMessageConstants.DEPOSIT_SPLIT_EXCEPTION_MESSAGE);
+                    }
                     checkingsAccount.setBalance(checkingsAccount.getBalance() + deposit.getSplitCheckingAmount());
                     savingsAccount.setBalance(savingsAccount.getBalance() + deposit.getSplitSavingsAmount());
                     accountRepo.saveAll(Arrays.asList(checkingsAccount, savingsAccount));
