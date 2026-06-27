@@ -53,7 +53,8 @@ Cross-cutting `@AfterReturning`/`@Before`/`@AfterThrowing` advice in `LoggingAsp
 ## Authentication & Security
 
 - **Stateless JWT auth** — `JwtManager` issues HMAC-SHA signed tokens (24h validity, `BankerApi` issuer). Clients send `Authorization: bearer <token>`.
-- **`JwtAuthenticationFilter`** runs once per request, validates the token, loads the user via `CustomUserDetailsService`, and populates the `SecurityContext`.
+- **`JwtAuthenticationFilter`** runs once per request, validates the token signature, and reads the user's roles directly from the JWT `roles` claim — no database lookup on every request. `CustomUserDetailsService` is used only at login by `DaoAuthenticationProvider`.
+- **PIN lockout** — after 3 consecutive wrong PIN attempts the account is locked for 30 minutes (`Client.pinLockedUntil`). Any transfer or bill-payment endpoint that requires a PIN will return 423 while locked.
 - **Password storage** uses `BCryptPasswordEncoder` via a `DaoAuthenticationProvider`.
 - **Role-based authorization** is centrally defined in `SecurityConfig.Endpoints`:
   - `ADMIN`-only: listing all accounts/clients, processing deposits, approving/rejecting loans.
@@ -76,7 +77,7 @@ Cross-cutting `@AfterReturning`/`@Before`/`@AfterThrowing` advice in `LoggingAsp
 | Method | Path | Access | Description |
 |---|---|---|---|
 | POST | `/account/create` | USER | Open a new account for the authenticated client |
-| GET | `/account/all` | ADMIN | Paginated list of all accounts |
+| GET | `/account/all?page=0` | ADMIN | Paginated list of all accounts (10 per page) |
 | GET | `/account/client` | USER/ADMIN | All accounts owned by the authenticated client |
 | GET | `/account/{accountId}` | USER/ADMIN | Fetch a single account |
 | DELETE | `/account/{accountId}` | USER | Close/delete an account |
@@ -88,7 +89,7 @@ Cross-cutting `@AfterReturning`/`@Before`/`@AfterThrowing` advice in `LoggingAsp
 ### Client — `/client`
 | Method | Path | Access | Description |
 |---|---|---|---|
-| GET | `/client/all` | ADMIN | List all clients |
+| GET | `/client/all?page=0` | ADMIN | Paginated list of all clients (10 per page) |
 | DELETE | `/client/remove` | USER | Delete the authenticated client's account |
 | GET / DELETE | `/client/beneficiary`, `/client/beneficiary/{id}` | USER | View / remove saved beneficiaries |
 | GET / DELETE | `/client/bill`, `/client/bill/{id}` | USER | View / remove registered bills |
@@ -104,7 +105,7 @@ Cross-cutting `@AfterReturning`/`@Before`/`@AfterThrowing` advice in `LoggingAsp
 |---|---|---|---|
 | POST | `/transaction/inner-bank` | USER | Transfer between accounts within the bank |
 | POST | `/transaction/outer-bank` | USER | Transfer to an external bank account |
-| GET | `/transaction/{accountId}` | USER/ADMIN | Transaction history for an account |
+| GET | `/transaction/{accountId}?page=0` | USER/ADMIN | Paginated transaction history for an account (20 per page, newest first) |
 | GET | `/transaction/recent` | USER/ADMIN | Recent transactions across the client's accounts |
 | GET | `/transaction/bill` | USER/ADMIN | Paid bill history |
 | POST | `/transaction/bill` | USER | Pay a registered bill |
